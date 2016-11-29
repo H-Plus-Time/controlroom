@@ -1,0 +1,22 @@
+box: markadams/chromium-xvfb-js
+build:
+  steps:
+    - npm-install
+    - script:
+        name: bower install
+        code: |
+          ./node_modules/bower/bin/bower install --allow-root --config.interactive=false
+    - script:
+        name: gulp install
+        code: |
+          npm install -g gulp-cli && gulp
+    - script:
+        name: npm test
+        code: |
+          xvfb-run npm test
+deploy:
+  steps:
+    - leipert/git-push:
+        branch: master
+        gh_oauth: $GITHUB_TOKEN
+        basedir: build/unbundled

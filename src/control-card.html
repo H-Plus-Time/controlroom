@@ -1,0 +1,79 @@
+<link rel="import" href="../bower_components/polymer/polymer.html">
+<link rel="import" href="../bower_components/paper-input/paper-input.html">
+<link rel="import" href="../bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../bower_components/iron-icons/iron-icons.html">
+<link rel="import" href="../bower_components/iron-flex-layout/iron-flex-layout-classes.html">
+<link rel="import" href="../bower_components/neon-animation/neon-animated-pages.html" />
+<link rel="import" href="../bower_components/neon-animation/neon-animatable.html" />
+<link rel="import" href="../bower_components/neon-animation/neon-animations.html" />
+<dom-module id="control-card">
+  <template>
+    <style include="iron-flex iron-flex-alignment">
+      :host {
+        display: block;
+        width:250px;
+        /*height:100px;*/
+        background:white;
+        padding:0 10px;
+      }
+      :host div {
+        align-items:flex-end;
+      }
+    </style>
+    <div class="horizontal layout justified center">
+      <h3>[[conf.name]]</h3>
+      <paper-icon-button icon="swap-vertical-circle"
+        toggles active="{{toggled}}"></paper-icon-button>
+    </div>
+    <div class="horizontal layout center" hidden="[[toggled]]">
+      <paper-input label="x [[conf.units]]"></paper-input>
+      <paper-icon-button icon$="[[_computeIcon(inProgress)]]"
+        on-tap="_dispatchCommand"></paper-icon-button>
+    </div>
+    <div hidden="[[!toggled]]">
+      <paper-icon-button icon="arrow-back"></paper-icon-button>
+      <paper-input label="x [[units]]"></paper-input>
+      <paper-icon-button icon="arrow-forward"></paper-icon-button>
+    </div>
+
+  </template>
+  <script>
+    Polymer({
+      is: 'control-card',
+      properties: {
+        inProgress: {
+          type: Boolean,
+          value: _ => false
+        },
+        mode: {
+          type: String,
+          value: _ => "absolute"
+        },
+        toggled: {
+          type: Boolean,
+          value: _ => false
+        },
+        conf: {
+          type: Object,
+          value: _ => ({})
+        }
+      },
+      _flipMode() {
+        var newMode = this.mode == 'absolute' ? 'relative' : 'absolute';
+        this.set('mode', newMode);
+      },
+      dispatchCommand() {
+        if(this.inProgress) {
+          this.dispatchEvent(new CustomEvent('control-abort', {detail: this.conf, bubbles: true}))
+          return;
+        }
+        if(this.mode == "absolute") {
+          this.dispatchEvent(new CustomEvent('control-move-absolute', {detail: {conf: this.conf, param: this.abs_val}}))
+        }
+      },
+      _computeIcon(inProgress) {
+        return inProgress ? "close" : "send"
+      }
+    });
+  </script>
+</dom-module>

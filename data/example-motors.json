@@ -1,0 +1,14 @@
+[
+  {
+    "id": "dfert323", "name": "X Axis", "min": -25, "max": 25, "units": "mm"
+  },
+  {
+    "id": "ttytt4", "name": "Y Axis", "min": -25, "max": 25, "units": "mm"
+  },
+  {
+    "id": "dfertqqq", "name": "Z Axis", "min": -25, "max": 25, "units": "mm"
+  },
+  {
+    "id": "dfert777", "name": "Theta Axis", "min": -180, "max": 180, "units": "degrees"
+  }
+]
