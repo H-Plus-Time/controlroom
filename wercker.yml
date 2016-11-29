@@ -5,7 +5,7 @@ build:
     - script:
         name: bower install
         code: |
-          npm install -g bower
+          npm install bower
           ./node_modules/bower/bin/bower install --allow-root --config.interactive=false
     - script:
         name: gulp install
