@@ -18,6 +18,6 @@ build:
 deploy:
   steps:
     - leipert/git-push:
-        branch: master
+        branch: gh-pages
         gh_oauth: $GITHUB_TOKEN
         basedir: build/unbundled
