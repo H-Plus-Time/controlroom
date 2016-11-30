@@ -1,0 +1,37 @@
+<link rel="import" href="../bower_components/polymer/polymer.html">
+
+<dom-module id="telemetry-card">
+  <template>
+    <style>
+      :host {
+        display: block;
+      }
+    </style>
+    <h2>[[measurable.name]]</h2>
+    <div>
+      [[measurable.value]] [[measurable.units]]
+    </div>
+    <div>
+      [[measurable.velocity]] [[measurable.units]]/s
+    </div>
+    <div>
+      [[measurable.acceleration]] [[measurable.units]]/s<sup>2</sup>
+    </div>
+  </template>
+  <script>
+    Polymer({
+      is: 'telemetry-card',
+      properties: {
+        measurable: {
+          type: Object,
+          value: _ => ({
+            name: 'lorem',
+            value: 0,
+            velocity: 0,
+            acceleration: 0
+          })
+        }
+      }
+    });
+  </script>
+</dom-module>

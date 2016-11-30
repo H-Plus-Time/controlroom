@@ -16,8 +16,21 @@
         background:white;
         padding:0 10px;
       }
-      :host div {
+      :host > div {
         align-items:flex-end;
+      }
+      .relative {
+        display:flex;
+        flex-direction:column;
+      }
+      .relative > div.controls {
+        display:flex;
+        flex-direction:row;
+        justify-content:space-between;
+      }
+      .relative > div.telemetry {
+        display:block;
+        align-self:center;
       }
     </style>
     <div class="horizontal layout justified center">
@@ -30,10 +43,15 @@
       <paper-icon-button icon$="[[_computeIcon(inProgress)]]"
         on-tap="_dispatchCommand"></paper-icon-button>
     </div>
-    <div hidden="[[!toggled]]">
-      <paper-icon-button icon="arrow-back"></paper-icon-button>
-      <paper-input label="x [[units]]"></paper-input>
-      <paper-icon-button icon="arrow-forward"></paper-icon-button>
+    <div hidden="[[!toggled]]" class="relative">
+      <div class="telemetry">
+        [[value]] [[conf.units]]
+      </div>
+      <div class="controls">
+        <paper-icon-button icon="arrow-back"></paper-icon-button>
+        <paper-input label="x [[conf.units]]"></paper-input>
+        <paper-icon-button icon="arrow-forward"></paper-icon-button>
+      </div>
     </div>
 
   </template>
@@ -56,6 +74,10 @@
         conf: {
           type: Object,
           value: _ => ({})
+        },
+        value: {
+          type: Number,
+          value: _ => 2
         }
       },
       _flipMode() {
