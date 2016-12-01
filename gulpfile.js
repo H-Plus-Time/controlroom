@@ -35,11 +35,11 @@ global.config = {
   },
   // Path to your service worker, relative to the build root directory
   serviceWorkerPath: 'service-worker.js',
-  stripPrefix: 'cxs-controlroom/',
   // Service Worker precache options based on
   // https://github.com/GoogleChrome/sw-precache#options-parameter
   swPrecacheConfig: {
-    navigateFallback: '/index.html'
+    navigateFallback: '/index.html',
+    stripPrefix: 'cxs-controlroom/'
   }
 };
 
