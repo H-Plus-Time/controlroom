@@ -14,7 +14,7 @@ module.exports = {
     '/bower_components/webcomponentsjs/webcomponents-lite.min.js'
   ],
   stripPrefixMulti: {
-    '/': '/cxs-controlroom/'
+    '/bower_components': '/cxs-controlroom/bower_components'
   },
   navigateFallback: '/index.html'
 };
