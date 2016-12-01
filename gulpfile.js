@@ -39,8 +39,7 @@ global.config = {
   // https://github.com/GoogleChrome/sw-precache#options-parameter
   swPrecacheConfig: {
     navigateFallback: '/index.html',
-    stripPrefix: '/',
-    replacePrefix: 'cxs-controlroom'
+    replacePrefix: '/cxs-controlroom'
   }
 };
 
