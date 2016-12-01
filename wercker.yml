@@ -21,6 +21,9 @@ deploy:
         name: basedir fix
         code: |
           cat build/unbundled/index.html | sed "s?<head>?<head><base href='https://h-plus-time.github.io/cxs-controlroom/'>?" > build/unbundled/index.html
+    - script:
+        name: debugging purposes
+        code: ls build/unbundled && cat build/unbundled/index.html
     - leipert/git-push:
         branch: gh-pages
         gh_oauth: $GITHUB_TOKEN
