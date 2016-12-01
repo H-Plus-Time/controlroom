@@ -15,10 +15,6 @@ build:
         name: npm test
         code: |
           xvfb-run npm test
-    - script:
-        name: basedir fix
-        code: |
-          cat ./build/unbundled/index.html | sed "s?<head>?<head><base href='https://h-plus-time.github.io/cxs-controlroom/'>?" > ./build/unbundled/index.html
 deploy:
   steps:
     - leipert/git-push:
