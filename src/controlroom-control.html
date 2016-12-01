@@ -10,26 +10,33 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
 <link rel="import" href="../bower_components/polymer/polymer.html">
 <link rel="import" href="../bower_components/iron-ajax/iron-ajax.html">
+<link rel="import" href="../bower_components/iron-flex-layout/iron-flex-layout-classes.html">
 <link rel="import" href="shared-styles.html">
 <link rel="import" href="control-card.html" />
 
 <dom-module id="controlroom-control">
   <template>
-    <style include="shared-styles">
+    <style include="shared-styles iron-flex iron-flex-alignment">
       :host {
-        display: block;
+        display: flex;
 
         padding: 10px;
       }
+      .control-container {
+        margin:auto;
+      }
     </style>
-    <iron-ajax auto
-      url="../data/example-motors.json"
-      handle-as="json"
-      last-response="{{motors}}">
-    </iron-ajax>
-    <template is="dom-repeat" items="[[motors]]">
-      <control-card conf="[[item]]"></control-card>
-    </template>
+    <div class="telem-container horizontal layout wrap">
+      <template is="dom-repeat" items="[[pinned]]">
+        <telemetry-card conf="[[item]]"></telemetry-card>
+      </template>
+    </div>
+    <div class=" control-container horizontal layout wrap">
+      <template is="dom-repeat" items="[[motors]]" as="motor">
+        <control-card conf="[[motor.conf]]" telemetry="[[motor.telemetry]]"></control-card>
+      </template>
+    </div>
+
   </template>
 
   <script>

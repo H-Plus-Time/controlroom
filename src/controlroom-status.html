@@ -1,0 +1,72 @@
+<link rel="import" href="../bower_components/polymer/polymer.html">
+
+<link rel="import" href="../bower_components/polymer/polymer.html">
+
+<dom-module id="status-card">
+  <template>
+    <style>
+      :host {
+        display: block;
+      }
+    </style>
+    <paper-card heading="[[controller.name]]">
+      <div class="card-content">
+        <p>
+          [[item.status]]
+        </p>
+        <paper-icon-button
+          icon$="[[_computeActionIcon(controller.status)]]"
+          on-tap="_dispatchControllerCommand"></paper-icon-button>
+      </div>
+    </paper-card>
+  </template>
+  <script>
+    Polymer({
+      is: 'status-card',
+
+      _computeActionIcon(status) {
+        switch(status) {
+          case 'error':
+            return 'restore'
+            break;
+          case 'offline':
+            return 'power-settings-new'
+            break;
+          default:
+            return 'done'
+        }
+      },
+
+      _dispatchControllerCommand() {
+        action = 'noop';
+        switch(this.controller.status) {
+          case 'error':
+            action = 'reboot';
+            break;
+          case 'offline':
+            action = 'start';
+            break;
+        }
+        this.dispatchEvent(new CustomEvent(`control-admin-${action}`, {detail: {conf: this.controller}, bubbles: true}))
+      }
+    });
+  </script>
+</dom-module>
+
+<dom-module id="controlroom-status">
+  <template>
+    <style>
+      :host {
+        display: block;
+      }
+    </style>
+    <template is="dom-repeat" items="[[controllers]]">
+      <status-card controller="[[item]]"></status-card>
+    </template>
+  </template>
+  <script>
+    Polymer({
+      is: 'controlroom-status',
+    });
+  </script>
+</dom-module>

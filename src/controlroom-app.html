@@ -18,6 +18,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel="import" href="../bower_components/app-route/app-location.html">
 <link rel="import" href="../bower_components/app-route/app-route.html">
 <link rel="import" href="../bower_components/iron-pages/iron-pages.html">
+<link rel="import" href="../bower_components/iron-ajax/iron-ajax.html">
 <link rel="import" href="../bower_components/iron-selector/iron-selector.html">
 <link rel="import" href="../bower_components/paper-tabs/paper-tabs.html">
 <link rel="import" href="../bower_components/paper-icon-button/paper-icon-button.html">
@@ -26,7 +27,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   <template>
     <style>
       :host {
-        --app-primary-color: #4285f4;
+        --app-primary-color: rgb(78, 66, 202);
         --app-secondary-color: black;
 
         display: block;
@@ -136,14 +137,18 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             <div main-title>Control Room</div>
           </app-toolbar>
         </app-header>
-
+        <iron-ajax auto
+          url="../data/example-motors.json"
+          handle-as="json"
+          last-response="{{motors}}">
+        </iron-ajax>
         <iron-pages
             selected="[[page]]"
             attr-for-selected="name"
             fallback-selection="view404"
             role="main">
-          <controlroom-home name="home"></controlroom-home>
-          <controlroom-control name="control"></controlroom-control>
+          <controlroom-home name="home" motors="[[motors]]"></controlroom-home>
+          <controlroom-control name="control" motors="[[motors]]"></controlroom-control>
           <controlroom-telemetry name="telemetry"></controlroom-telemetry>
           <controlroom-view404 name="view404"></controlroom-view404>
         </iron-pages>
