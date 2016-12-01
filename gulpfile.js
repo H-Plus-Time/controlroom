@@ -94,7 +94,8 @@ function dependencies() {
 
 function copyData() {
   return gulp.src('*', { base: './data' })
-  .pipe(gulp.dest('build'));
+  .pipe(gulp.dest('build/bundled'))
+  .pipe(gulp.dest('build/unbundled'));
 }
 
 // Clean the build directory, split all source and dependency files into streams
