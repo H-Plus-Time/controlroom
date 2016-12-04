@@ -10,6 +10,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
 <link rel="import" href="../bower_components/polymer/polymer.html">
 <link rel="import" href="../bower_components/iron-ajax/iron-ajax.html">
+<link rel="import" href="../bower_components/paper-dialog/paper-dialog.html">
 <link rel="import" href="../bower_components/iron-flex-layout/iron-flex-layout-classes.html">
 <link rel="import" href="shared-styles.html">
 <link rel="import" href="control-card.html" />
@@ -25,13 +26,28 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       .control-container {
         margin:auto;
       }
+      .settings {
+        width:960px;
+        height:50%;
+      }
+      @media only screen and (max-device-width:960px){
+        .settings {
+          width:100%;
+          height:100%;
+        }
+      }
+
     </style>
+    <paper-dialog class="settings" opened$="{{settingsOpen}}">
+      Settings
+    </paper-dialog>
     <div class="telem-container horizontal layout wrap">
       <template is="dom-repeat" items="[[pinned]]">
         <telemetry-card conf="[[item]]"></telemetry-card>
       </template>
     </div>
-    <div class=" control-container horizontal layout wrap">
+    <div class=" control-container horizontal layout wrap"
+      on-open-controller-settings="_toggleSettingsDialog">
       <template is="dom-repeat" items="[[motors]]" as="motor">
         <control-card conf="[[motor.conf]]" telemetry="[[motor.telemetry]]"></control-card>
       </template>
@@ -41,7 +57,19 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
   <script>
     Polymer({
-      is: 'controlroom-control'
+      is: 'controlroom-control',
+
+      properties: {
+        settingsOpen: {
+          type: Boolean,
+          value: _ => false
+        }
+      },
+
+      _toggleSettingsDialog(e) {
+        this.settingsOpen = false;
+        this.settingsOpen = true;
+      }
     });
   </script>
 </dom-module>

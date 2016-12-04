@@ -21,7 +21,8 @@
     "iron-ajax": "^1.4.3",
     "iron-icons": "^1.2.0",
     "flip-element": "^1.2.0",
-    "neon-animation": "^1.2.4"
+    "neon-animation": "^1.2.4",
+    "paper-dialog": "^1.1.0"
   },
   "devDependencies": {
     "web-component-tester": "^4.0.0"

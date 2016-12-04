@@ -11,9 +11,12 @@
   <template>
     <style include="iron-flex iron-flex-alignment">
       :host {
-        display: block;
-        width:250px;
-        /*height:100px;*/
+        display: flex;
+        flex-direction:column;
+        justify-content:space-between;
+        align-items:center;
+        width:300px;
+        height:240px;
         background:white;
         padding:0 10px;
         margin:1px;
@@ -21,6 +24,9 @@
       .telemetry {
         text-align:center;
         margin:0;
+      }
+      .nomargin {
+        margin: 0;
       }
       .warning {
         border-radius:50%;
@@ -31,44 +37,61 @@
       .ready {
         color:green;
       }
+      .ribbon {
+        width:100%;
+        display:flex;
+        justify-content:center;
+        margin: 0 -20px;
+      }
     </style>
-    <div class="horizontal layout justified center">
-      <h3>[[conf.name]]</h3>
-      <div>
-        <paper-icon-button icon="close" class="warning"
-          on-tap="_dispatchAbort"></paper-icon-button>
-        <paper-icon-button icon$="[[_computeDisableIcon(disabled)]]"
-          toggles active="{{disabled}}"
-          on-tap="_dispatchDisable"></paper-icon-button>
-        <paper-icon-button icon="swap-vertical-circle"
-          toggles active="{{toggled}}"></paper-icon-button>
+    <div style="width:100%">
+      <div class="horizontal layout justified center">
+        <h3>[[conf.name]]</h3>
+        <div>
+          <paper-icon-button icon="close" class="warning"
+            on-tap="_dispatchAbort"></paper-icon-button>
+          <paper-icon-button icon$="[[_computeDisableIcon(disabled)]]"
+            toggles active="{{disabled}}"
+            on-tap="_dispatchDisable"></paper-icon-button>
+          <paper-icon-button icon="swap-vertical-circle"
+            toggles active="{{toggled}}"></paper-icon-button>
+          <paper-icon-button icon="settings"
+            on-tap="_fireControllerSettings"></paper-icon-button>
+        </div>
+      </div>
+      <div class="horizontal layout justified">
+        <h4 class="nomargin">[[mode]]</h4>
+        <div class="horizontal layout center">
+          <h4 class="nomargin">[[telem.status]]</h4>
+          <iron-icon style="padding:0 5px" class$="[[telem.status]]"
+            icon="[[_computeStatusIcon(telem.status)]]"></iron-icon>
+        </div>
       </div>
     </div>
-    <div class="horizontal layout justified">
+    <div class="ribbon" style$="background: [[_computeTelemColor(telem.status)]]">
       <h4>[[telem.value]] [[conf.units]]</h4>
-      <div class="horizontal layout center">
-        <h4>[[telem.status]]</h4>
-        <iron-icon style="padding:0 5px" class$="[[telem.status]]"
-          icon="[[_computeStatusIcon(telem.status)]]"></iron-icon>
-      </div>
     </div>
-    <div hidden="[[toggled]]">
+    <div hidden="[[toggled]]" style="padding-bottom:10px">
       <div class="horizontal layout end">
         <paper-icon-button icon="home" disabled$="[[disabled]]"
           on-tap="_dispatchHome"></paper-icon-button>
-        <paper-input no-label-float label="x [[conf.units]]" disabled$="[[disabled]]"
+        <paper-input no-label-float type="number"
+          label="x [[conf.units]]" disabled$="[[disabled]]"
           value="{{abs_val}}"></paper-input>
         <paper-icon-button icon="send" disabled$="[[disabled]]"
           on-tap="_dispatchCommand"></paper-icon-button>
       </div>
     </div>
-    <div hidden="[[!toggled]]">
+    <div hidden="[[!toggled]]" style="padding-bottom:10px">
         <div class="horizontal layout justified end">
-          <paper-icon-button icon="arrow-back" dir="back" disabled$="[[disabled]]"
+          <paper-icon-button icon="arrow-back" dir="back"
+            disabled$="[[disabled]]"
             on-tap="_dispatchRelativeMove"></paper-icon-button>
-          <paper-input no-label-float label="x [[conf.units]]" disabled$="[[disabled]]"
+          <paper-input no-label-float type="number"
+            label="x [[conf.units]]" disabled$="[[disabled]]"
             value="{{rel_val}}"></paper-input>
-          <paper-icon-button icon="arrow-forward" dir="forward" disabled$="[[disabled]]"
+          <paper-icon-button icon="arrow-forward" dir="forward"
+            disabled$="[[disabled]]"
             on-tap="_dispatchRelativeMove"></paper-icon-button>
         </div>
     </div>
@@ -84,6 +107,7 @@
         },
         mode: {
           type: String,
+          computed: '_computeMode(toggled)',
           value: _ => "absolute"
         },
         toggled: {
@@ -110,6 +134,25 @@
         }
 
       },
+
+      _computeTelemColor(status) {
+        switch(status) {
+          case 'moving':
+            return "#green";
+          default:
+            return "#fff";
+        }
+      },
+
+      _fireControllerSettings(e) {
+          this.dispatchEvent(new CustomEvent('open-controller-settings',
+            {detail: this.conf, bubbles: true}))
+      },
+
+      _computeMode(toggled) {
+        return toggled ? "RELATIVE" : "ABSOLUTE";
+      },
+
       _computeDisableIcon(disabled) {
           if(disabled) {
             return 'lock'
