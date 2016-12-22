@@ -26,7 +26,7 @@ deploy:
     - script:
         name: lighthouse audit
         code: |
-          mkdir report && cp README.md report
+          mkdir report && cp README.md report && apt-get update && apt-get install -y git
           headless_shell --no-sandbox --remote-debugging-port=9222 &>1 &
           lighthouse https://H-Plus-Time.github.io/cxs-controlroom --output json --output-path=report/lighthouse_results.json
           lighthouse https://H-Plus-Time.github.io/cxs-controlroom --output html --output-path=build/unbundled/audit.html
@@ -34,6 +34,3 @@ deploy:
         gh_oauth: $GITHUB_TOKEN
         gh_pages: true
         basedir: build/unbundled
-    - script:
-        name: test
-        code: echo test
