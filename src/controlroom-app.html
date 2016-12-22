@@ -199,16 +199,16 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         this.importHref(resolvedPageUrl, null, this._showPage404, true);
       },
 
-      _showPage404: function() {
+      _showPage404() {
         this.page = 'view404';
       },
-
-      initializeMeasurements: async function() {
+      
+      initializeMeasurements: async function init() {
         let conn = this.$$('autobahn-connection');
         await conn.subscribe('com.controlroom.measurements');
         await conn.subscribe('com.controlroom.status');
         let registrations = await conn.call('wamp.registration.list').then(resp => resp, console.log);
-        if registrations == null {
+        if (registrations == null) {
           return;
         }
         registrations.map(async (registration) => {

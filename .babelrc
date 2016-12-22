@@ -1,4 +1,4 @@
 {
-  "presets": ["es2015-script"],
-  "plugins":["array-includes"]
+  "presets": ["es2015"],
+  "plugins":["array-includes", "transform-regenerator"]
 }
