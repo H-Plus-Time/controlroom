@@ -31,8 +31,8 @@ deploy:
           lighthouse https://H-Plus-Time.github.io/cxs-controlroom --output json --output-path=report/lighthouse_results.json
           lighthouse https://H-Plus-Time.github.io/cxs-controlroom --output html --output-path=build/unbundled/audit.html
     - leipert/git-push:
-        gh_pages: true
         gh_oauth: $GITHUB_TOKEN
+        gh_pages: true
         basedir: build/unbundled
     - script:
         name: test
