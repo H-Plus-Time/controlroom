@@ -21,7 +21,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel="import" href="../bower_components/iron-ajax/iron-ajax.html">
 <link rel="import" href="../bower_components/iron-selector/iron-selector.html">
 <link rel="import" href="../bower_components/paper-tabs/paper-tabs.html">
-<link rel="import" href="../bower_components/autobahn-connection/autobahn-connection.html">
+<link rel="import" href="../bower_components/autobahn-connection/autobahn-connection-behaviour.html">
 <link rel="import" href="../bower_components/paper-icon-button/paper-icon-button.html">
 
 <dom-module id="controlroom-app">
@@ -101,13 +101,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         pattern="/:page"
         data="{{routeData}}"
         tail="{{subroute}}"></app-route>
-    <autobahn-connection
-      protocol-prefix="ws"
-      methods=""
-      realm="controlroom"
-      endpoint-suffix="ws"
-      on-auth-accepted="initializeMeasurements"
-      url="localhost:8080"></autobahn-connection>
     <app-drawer-layout fullbleed force-narrow>
       <!-- Drawer content -->
       <app-drawer>
@@ -145,17 +138,17 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           </app-toolbar>
         </app-header>
         <iron-ajax auto
-          url="../data/example-motors.json"
+          url="../data/example-controllers.json"
           handle-as="json"
-          last-response="{{motors}}">
+          last-response="{{controllers}}">
         </iron-ajax>
         <iron-pages
             selected="[[page]]"
             attr-for-selected="name"
             fallback-selection="view404"
             role="main">
-          <controlroom-home name="home" motors="[[motors]]"></controlroom-home>
-          <controlroom-control name="control" motors="[[motors]]"></controlroom-control>
+          <controlroom-home name="home" controllers="[[controllers]]"></controlroom-home>
+          <controlroom-control name="control" controllers="[[controllers]]"></controlroom-control>
           <controlroom-telemetry name="telemetry"></controlroom-telemetry>
           <controlroom-view404 name="view404"></controlroom-view404>
         </iron-pages>
@@ -166,7 +159,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   <script>
     Polymer({
       is: 'controlroom-app',
-
+      behaviors: [
+        AutobahnBehaviour
+      ],
       properties: {
         page: {
           type: String,
@@ -182,12 +177,20 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
               {name: "telemetry", label: "Telemetry"}
             ]
           )
+        },
+        realm: {
+            type: String,
+            value: _ => "controlroom"
         }
       },
 
       observers: [
         '_routePageChanged(routeData.page)'
       ],
+
+      listeners: {
+        'autobahn-opened': 'initializeMeasurements'
+      },
 
       _routePageChanged: function(page) {
         this.page = page || 'home';
@@ -202,19 +205,28 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       _showPage404() {
         this.page = 'view404';
       },
-      
+
+      attached() {
+      },
+
+      echo(e) {
+        console.log(e)
+      },
+
       initializeMeasurements: async function init() {
-        let conn = this.$$('autobahn-connection');
-        await conn.subscribe('com.controlroom.measurements');
-        await conn.subscribe('com.controlroom.status');
-        let registrations = await conn.call('wamp.registration.list').then(resp => resp, console.log);
-        if (registrations == null) {
-          return;
-        }
-        registrations.map(async (registration) => {
-          await conn.call(`com.controlroom.${registration}.get_telemetry`);
-          await conn.call(`com.controlroom.${registration}.get_config`);
+        let session = this.connection.session;
+        await session.subscribe('com.controlroom.measurements', this.echo);
+        await session.subscribe('com.controlroom.status', this.echo);
+        // let sessions = await session.call('wamp.session.list').then(resp => resp, console.log);
+        // if (session == null) {
+        //   return;
+        // }
+        let subcontrollers = await session.call(`com.controlroom.describe`);
+        x = subcontrollers.map(async (controller) => {
+            let controllables = await session.call(`com.controlroom.${controller}.describe`);
+            return controllables;
         })
+        console.log(x)
       }
     });
   </script>

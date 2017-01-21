@@ -11,7 +11,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel="import" href="../bower_components/polymer/polymer.html">
 <link rel="import" href="../bower_components/iron-flex-layout/iron-flex-layout-classes.html">
 <link rel="import" href="shared-styles.html">
-<link rel="import" href="control-card.html" />
+<link rel="import" href="control-cards.html" />
 <dom-module id="controlroom-home">
   <template>
     <style include="shared-styles iron-flex iron-flex-alignment">
@@ -25,14 +25,27 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       }
     </style>
     <div class="control-container horizontal layout wrap">
-      <template is="dom-repeat" items="[[motors]]" as="motor">
-        <control-card conf="[[motor.conf]]" telemetry="[[motor.telemetry]]"></control-card>
-      </template>
+        <template is="dom-repeat" items="[[controllers]]" as="controller">
+          <template is="dom-if" if="[[_isMotor(controller)]]">
+            <motor-card conf="[[controller.conf]]" telemetry="[[controller.telemetry]]"></motor-card>
+          </template>
+          <template is="dom-if" if="[[_isCamera(controller)]]">
+            <camera-card conf="[[controller.conf]]" telemetry="[[controller.telemetry]]"></camera-card>
+          </template>
+        </template>
     </div>
   </template>
   <script>
     Polymer({
-      is: 'controlroom-home'
+      is: 'controlroom-home',
+
+      _isMotor: function(controller) {
+        return controller.conf.type == "motor"
+      },
+
+      _isCamera: function(controller) {
+        return controller.conf.type == "camera"
+      }
     });
   </script>
 </dom-module>

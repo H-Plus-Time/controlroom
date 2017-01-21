@@ -13,7 +13,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel="import" href="../bower_components/paper-dialog/paper-dialog.html">
 <link rel="import" href="../bower_components/iron-flex-layout/iron-flex-layout-classes.html">
 <link rel="import" href="shared-styles.html">
-<link rel="import" href="control-card.html" />
+<link rel="import" href="control-cards.html" />
 
 <dom-module id="controlroom-control">
   <template>
@@ -48,8 +48,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     </div>
     <div class=" control-container horizontal layout wrap"
       on-open-controller-settings="_toggleSettingsDialog">
-      <template is="dom-repeat" items="[[motors]]" as="motor">
-        <control-card conf="[[motor.conf]]" telemetry="[[motor.telemetry]]"></control-card>
+      <template is="dom-repeat" items="[[controllers]]" as="controller">
+        <template is="dom-if" if="[[_isMotor(controller)]]">
+          <motor-card conf="[[controller.conf]]" telemetry="[[controller.telemetry]]"></motor-card>
+        </template>
+        <template is="dom-if" if="[[_isCamera(controller)]]">
+          <camera-card conf="[[controller.conf]]" telemetry="[[controller.telemetry]]"></camera-card>
+        </template>
       </template>
     </div>
 
@@ -64,6 +69,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           type: Boolean,
           value: _ => false
         }
+      },
+
+      _isMotor: function(controller) {
+        return controller.conf.type == "motor"
+      },
+
+      _isCamera: function(controller) {
+        return controller.conf.type == "camera"
       },
 
       _toggleSettingsDialog(e) {
