@@ -1,0 +1,70 @@
+[{
+    "conf": {
+        "type": "motor",
+        "id": "dfert323",
+        "name": "X Axis",
+        "min": -25,
+        "max": 25,
+        "units": "mm"
+    }, "telemetry": {
+      "status": "ready",
+      "value": 2
+    }
+}, {
+    "conf": {
+        "type": "motor",
+        "id": "ttytt4",
+        "name": "Y Axis",
+        "min": -25,
+        "max": 25,
+        "units": "mm"
+    }, "telemetry": {
+      "status": "ready",
+      "value": 2
+    }
+}, {
+    "conf": {
+        "type": "motor",
+        "id": "dfertqqq",
+        "name": "Z Axis",
+        "min": -25,
+        "max": 25,
+        "units": "mm"
+    }, "telemetry": {
+      "status": "ready",
+      "value": 2
+    }
+}, {
+    "conf": {
+        "type": "motor",
+        "id": "dfert777",
+        "name": "Theta Axis",
+        "min": -180,
+        "max": 180,
+        "units": "degrees"
+    }, "telemetry": {
+      "status": "ready",
+      "value": 2
+    }
+}, {
+    "conf": {
+        "type": "camera",
+        "id": "087",
+        "name": "mar345 detector"
+    }, "telemetry": {
+        "status": "ready",
+        "value": "inactive"
+    }
+}, {
+    "conf": {
+        "type": "motor",
+        "id": "087-PHI",
+        "name": "mar345 Phi Axis",
+        "min": 0,
+        "max": 25,
+        "units": "degrees"
+    }, "telemetry": {
+        "status": "ready",
+        "value": 300
+    }
+}]
