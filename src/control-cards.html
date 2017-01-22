@@ -139,6 +139,16 @@
                     bubbles: true
                 }))
             },
+            _dispatchShutterToggle() {
+                console.log(this.telemetry.shutter)
+                keyword = this.telemetry.shutter.open ? "open" : "close";
+                this.dispatchEvent(new CustomEvent(`control-shutter-${keyword}`, {
+                    detail: {
+                        conf: this.conf
+                    },
+                    bubbles: true
+                }))
+            },
             _computeIcon(inProgress) {
                 return inProgress ? "close" : "send"
             }

@@ -189,7 +189,15 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       ],
 
       listeners: {
-        'autobahn-opened': 'initializeMeasurements'
+        'autobahn-opened': 'initializeMeasurements',
+        'control-abort': '_dispatchAbort',
+        'control-disable': '_dispatchDisable',
+        'control-scan': '_dispatchScan',
+        'control-shutter-open': '_dispatchShutterOpen',
+        'control-shutter-close': 'dispatchShutterClose',
+        'control-move-absolute': '_dispatchMoveAbsolute',
+        'control-move-relative': '_dispatchMoveRelative',
+        'control-home': '_dispatchHome'
       },
 
       _routePageChanged: function(page) {
@@ -204,6 +212,33 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       _showPage404() {
         this.page = 'view404';
+      },
+
+      _dispatchAbort(e) {
+      },
+
+      _dispatchDisable(e) {
+        console.log(e);
+        this.connection.session.call(`com.controlroom.${e.detail.group}.${e.detail.id}.disable`, [])
+      }, 
+
+      _dispatchScan(e) {
+      },
+
+      _dispatchShutterOpen(e) {
+      },
+
+      _dispatchShutterClose(e) {
+      },
+
+      _dispatchMoveAbsolute(e) {
+      },
+
+      _dispatchMoveRelative(e) {
+      },
+
+      _dispatchHome(e) {
+
       },
 
       attached() {
@@ -221,12 +256,22 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         // if (session == null) {
         //   return;
         // }
-        let subcontrollers = await session.call(`com.controlroom.describe`);
-        x = subcontrollers.map(async (controller) => {
-            let controllables = await session.call(`com.controlroom.${controller}.describe`);
-            return controllables;
-        })
+        let subcontrollers = await session.call(`com.controlroom.describe`).then(resp => (resp));
+        console.log(subcontrollers)
+        x = await Promise.all(subcontrollers.map(async (controller) => {
+            let controller_obj = await session.call(`com.controlroom.${controller}.describe`).then(resp => (resp));
+            return controller_obj.controllers.map((controllable) => {
+              controllable.group = controller;
+              return controllable;
+            });
+        }));
         console.log(x)
+        y = x.reduce((a,b) => {
+          console.log(a);
+          console.log(b);
+          return a.concat(b)
+        })
+        console.log(y);
       }
     });
   </script>
