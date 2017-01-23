@@ -230,7 +230,7 @@
             min$="[[conf.min]]" max$="[[conf.max]]"
             value="{{abs_val}}"></paper-input>
             <paper-icon-button icon="send" disabled$="[[disabled]]"
-            on-tap="_dispatchCommand"></paper-icon-button>
+            on-tap="_dispatchAbsoluteMove"></paper-icon-button>
         </div>
     </div>
     <div hidden="[[!toggled]]" style="padding-bottom:10px">
@@ -360,24 +360,25 @@
                 delta = this.rel_val * dir;
                 this.dispatchEvent(new CustomEvent('control-move-relative', {
                     detail: {
-                        delta: delta,
+                        val: delta,
                         conf: this.conf
                     },
                     bubbles: true
                 }))
             },
-            dispatchCommand() {
+            _dispatchAbsoluteMove() {
                 if (this.inProgress) {
                     return;
                 }
-                if (this.mode == "absolute") {
+                // if (this.mode == "absolute") {
                     this.dispatchEvent(new CustomEvent('control-move-absolute', {
                         detail: {
                             conf: this.conf,
-                            param: this.abs_val
-                        }
+                            val: this.abs_val
+                        },
+                        bubbles: true
                     }))
-                }
+                // }
             },
             _computeIcon(inProgress) {
                 return inProgress ? "close" : "send"

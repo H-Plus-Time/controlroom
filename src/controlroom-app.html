@@ -193,6 +193,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         'control-abort': '_dispatchAbort',
         'control-disable': '_dispatchDisable',
         'control-scan': '_dispatchScan',
+        'control-erase': '_dispatchErase',
         'control-shutter-open': '_dispatchShutterOpen',
         'control-shutter-close': 'dispatchShutterClose',
         'control-move-absolute': '_dispatchMoveAbsolute',
@@ -215,33 +216,51 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       },
 
       _dispatchAbort(e) {
+        this.connection.session.call(`com.controlroom.${e.detail.conf.group}.abort`, [])
       },
 
       _dispatchDisable(e) {
         console.log(e);
-        this.connection.session.call(`com.controlroom.${e.detail.group}.${e.detail.id}.disable`, [])
-      }, 
+        this.connection.session.call(`com.controlroom.${e.detail.conf.group}.${e.detail.conf.id}.disable`, [])
+      },
+
+      _dispatchErase(e) {
+        console.log(e);
+        this.connection.session.call(`com.controlroom.${e.detail.conf.group}.${e.detail.conf.id}.erase`, [])
+      },
 
       _dispatchScan(e) {
+        console.log(e)
+        this.connection.session.call(`com.controlroom.${e.detail.conf.group}.${e.detail.conf.id}.scan`, [e.detail.resolution])
       },
 
       _dispatchShutterOpen(e) {
+        this.connection.session.call(`com.controlroom.${e.detail.conf.group}.${e.detail.conf.id}.open`, [])
       },
 
       _dispatchShutterClose(e) {
+        this.connection.session.call(`com.controlroom.${e.detail.conf.group}.${e.detail.conf.id}.close`, [])
       },
 
       _dispatchMoveAbsolute(e) {
+        console.log(e)
+        this.connection.session.call(`com.controlroom.${e.detail.conf.group}.${e.detail.conf.id}.absolute_move`, [e.detail.val])
       },
 
       _dispatchMoveRelative(e) {
+        this.connection.session.call(`com.controlroom.${e.detail.conf.group}.${e.detail.conf.id}.relative_move`, [e.detail.val])
       },
 
       _dispatchHome(e) {
+        this.connection.session.call(`com.controlroom.${e.detail.conf.group}.${e.detail.conf.id}.home`, [e.detail.val])
 
       },
 
       attached() {
+      },
+
+      handle_status(e) {
+        this.controllers.find((controller) => controller.id == e.id).status = e.status
       },
 
       echo(e) {
@@ -251,7 +270,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       initializeMeasurements: async function init() {
         let session = this.connection.session;
         await session.subscribe('com.controlroom.measurements', this.echo);
-        await session.subscribe('com.controlroom.status', this.echo);
+        await session.subscribe('com.controlroom.status', this.handle_status);
         // let sessions = await session.call('wamp.session.list').then(resp => resp, console.log);
         // if (session == null) {
         //   return;
@@ -266,12 +285,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             });
         }));
         console.log(x)
-        y = x.reduce((a,b) => {
-          console.log(a);
-          console.log(b);
+        controllables = x.reduce((a,b) => {
           return a.concat(b)
+        }).map((controllable) => {
+          return {conf: controllable, telemetry: {}}
         })
-        console.log(y);
+        console.log(controllables);
+        this.controllers = controllables;
+        console.log(this.controllers);
       }
     });
   </script>
