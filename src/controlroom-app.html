@@ -20,8 +20,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel="import" href="../bower_components/iron-pages/iron-pages.html">
 <link rel="import" href="../bower_components/iron-ajax/iron-ajax.html">
 <link rel="import" href="../bower_components/iron-selector/iron-selector.html">
+<link rel="import" href="../bower_components/iron-icons/iron-icons.html">
 <link rel="import" href="../bower_components/paper-tabs/paper-tabs.html">
-<link rel="import" href="../bower_components/autobahn-connection/autobahn-connection-behaviour.html">
 <link rel="import" href="../bower_components/paper-icon-button/paper-icon-button.html">
 
 <dom-module id="controlroom-app">
@@ -76,8 +76,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         font-weight: bold;
       }
       div[main-title] {
-        flex:0 !important;
-        margin:auto;
+        text-align:center;
       }
       app-header app-toolbar:first-of-type {
         /*height:100px;*/
@@ -147,9 +146,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             attr-for-selected="name"
             fallback-selection="view404"
             role="main">
-          <controlroom-home name="home" controllers="[[controllers]]"></controlroom-home>
           <controlroom-control name="control" controllers="[[controllers]]"></controlroom-control>
-          <controlroom-telemetry name="telemetry"></controlroom-telemetry>
+          <controlroom-telemetry name="telemetry" controllers="[[controllers]]"></controlroom-telemetry>
           <controlroom-view404 name="view404"></controlroom-view404>
         </iron-pages>
       </app-header-layout>
@@ -160,7 +158,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     Polymer({
       is: 'controlroom-app',
       behaviors: [
-        AutobahnBehaviour
       ],
       properties: {
         page: {
@@ -172,7 +169,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           type: Array,
           value: _ => (
             [
-              {name: "home", label: "Home"},
               {name: "control", label: "Control"},
               {name: "telemetry", label: "Telemetry"}
             ]
@@ -202,7 +198,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       },
 
       _routePageChanged: function(page) {
-        this.page = page || 'home';
+        this.page = page || 'control';
       },
 
       _pageChanged: function(page) {

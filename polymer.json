@@ -2,17 +2,16 @@
   "entrypoint": "index.html",
   "shell": "src/controlroom-app.html",
   "fragments": [
-    "src/controlroom-home.html",
     "src/controlroom-telemetry.html",
     "src/controlroom-control.html",
     "src/controlroom-view404.html"
   ],
-  "sourceGlobs": [
+  "sources": [
    "src/**/*",
    "images/**/*",
    "bower.json"
   ],
-  "includeDependencies": [
+  "extraDependencies": [
     "manifest.json",
     "bower_components/webcomponentsjs/webcomponents-lite.min.js"
   ]
