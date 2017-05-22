@@ -39,4 +39,4 @@ deploy:
     - leipert/git-push:
         branch: gh-pages
         gh_oauth: $GITHUB_TOKEN
-        basedir: build/unbundled
+        basedir: build/default
