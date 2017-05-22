@@ -1,22 +1,30 @@
 <link rel="import" href="../bower_components/polymer/polymer-element.html">
 <link rel="import" href="../bower_components/nvd3-elements/nvd3-line.html">
-<dom-module id="telemetry-card">
+<link rel="import" href="../bower_components/paper-styles/element-styles/paper-material-styles.html">
+<dom-module id="motor-telemetry-card">
   <template>
-    <style>
+    <style include="paper-material-styles">
       :host {
-        display: block;
+        display: flex;
         padding:10px;
+        @apply --paper-material-elevation-2;
+      }
+      .left-pane {
+        width:150px;
       }
     </style>
-    <h2>[[measurable.conf.name]]</h2>
-    <div>
-      [[measurable.value]] [[measurable.conf.units]]
-    </div>
-    <div>
-      [[measurable.velocity]] [[measurable.conf.units]]/s
-    </div>
-    <div>
-      [[measurable.acceleration]] [[measurable.conf.units]]/s<sup>2</sup>
+    <div class="left-pane">
+      <h2>[[measurable.conf.name]]</h2>
+      <div>[[measurable.telemetry.status]]</div>
+      <div>
+        [[measurable.telemetry.value]] [[measurable.conf.units]]
+      </div>
+      <div>
+        [[measurable.telemetry.velocity]] [[measurable.conf.units]]/s
+      </div>
+      <div>
+        [[measurable.telemetry.acceleration]] [[measurable.conf.units]]/s<sup>2</sup>
+      </div>
     </div>
     <nvd3-line
       data="[[data]]"
@@ -26,10 +34,12 @@
       show-legend
       use-interactive-guideline>
     </nvd3-line>
+    
+    
   </template>
   <script>
-    class TelemetryCard extends Polymer.Element {
-      static get is() { return 'telemetry-card'; }
+    class MotorTelemetryCard extends Polymer.Element {
+      static get is() { return 'motor-telemetry-card'; }
       static get properties() {
         return {
         }
@@ -84,13 +94,13 @@
         "y": 0.9854497299884601
       }, {
         "x": 15,
-        "y": 0.9974949866040544
+        "y": 0.9974
       }, {
         "x": 16,
-        "y": 0.9995736030415051
+        "y": 0.9995
       }, {
         "x": 17,
-        "y": 0.9916648104524686
+        "y": 0.9916
       }, {
         "x": 18,
         "y": 0.9738476308781951
@@ -180,13 +190,13 @@
         "y": -0.9936910036334644
       }, {
         "x": 47,
-        "y": -0.9999232575641008
+        "y": -0.9999
       }, {
         "x": 48,
-        "y": -0.9961646088358407
+        "y": -0.9961
       }, {
         "x": 49,
-        "y": -0.9824526126243325
+        "y": -0.9824
       }, {
         "x": 50,
         "y": -0.9589242746631385
@@ -222,22 +232,22 @@
         "y": -0.27941549819892586
       }, {
         "x": 61,
-        "y": -0.18216250427209588
+        "y": -0.18216
       }, {
         "x": 62,
-        "y": -0.0830894028174964
+        "y": -0.0830
       }, {
         "x": 63,
-        "y": 0.016813900484349713
+        "y": 0.01681
       }, {
         "x": 64,
-        "y": 0.11654920485049364
+        "y": 0.1165
       }, {
         "x": 65,
-        "y": 0.21511998808781552
+        "y": 0.2151
       }, {
         "x": 66,
-        "y": 0.31154136351337786
+        "y": 0.3115
       }, {
         "x": 67,
         "y": 0.4048499206165983
@@ -249,98 +259,160 @@
         "y": 0.5784397643882002
       }, {
         "x": 70,
-        "y": 0.6569865987187891
+        "y": 0.65698
       }, {
         "x": 71,
-        "y": 0.7289690401258759
+        "y": 0.72896
       }, {
         "x": 72,
-        "y": 0.7936678638491532
+        "y": 0.79366
       }, {
         "x": 73,
-        "y": 0.8504366206285645
+        "y": 0.8504
       }, {
         "x": 74,
-        "y": 0.8987080958116269
+        "y": 0.898
       }, {
         "x": 75,
-        "y": 0.9379999767747389
+        "y": 0.9379
       }, {
         "x": 76,
-        "y": 0.9679196720314863
+        "y": 0.9679
       }, {
         "x": 77,
-        "y": 0.9881682338770004
+        "y": 0.9881
       }, {
         "x": 78,
-        "y": 0.998543345374605
+        "y": 0.9985
       }, {
         "x": 79,
-        "y": 0.998941341839772
+        "y": 0.9989
       }, {
         "x": 80,
-        "y": 0.9893582466233818
+        "y": 0.9893
       }, {
         "x": 81,
-        "y": 0.9698898108450863
+        "y": 0.969
       }, {
         "x": 82,
-        "y": 0.9407305566797731
+        "y": 0.940
       }, {
         "x": 83,
-        "y": 0.9021718337562934
+        "y": 0.902
       }, {
         "x": 84,
-        "y": 0.8545989080882805
+        "y": 0.854598
       }, {
         "x": 85,
-        "y": 0.7984871126234903
+        "y": 0.798
       }, {
         "x": 86,
-        "y": 0.7343970978741134
+        "y": 0.734
       }, {
         "x": 87,
-        "y": 0.6629692300821833
+        "y": 0.662
       }, {
         "x": 88,
-        "y": 0.5849171928917617
+        "y": 0.584
       }, {
         "x": 89,
         "y": 0.5010208564578846
       }, {
         "x": 90,
-        "y": 0.4121184852417566
+        "y": 0.41211
       }, {
         "x": 91,
-        "y": 0.3190983623493521
+        "y": 0.31909
       }, {
         "x": 92,
-        "y": 0.22288991410024764
+        "y": 0.22288
       }, {
         "x": 93,
-        "y": 0.1244544235070617
+        "y": 0.1244
       }, {
         "x": 94,
-        "y": 0.024775425453357765
+        "y": 0.024775
       }, {
         "x": 95,
         "y": -0.0751511204618093
       }, {
         "x": 96,
-        "y": -0.17432678122297965
+        "y": -0.1743
       }, {
         "x": 97,
-        "y": -0.27176062641094245
+        "y": -0.2717
       }, {
         "x": 98,
-        "y": -0.3664791292519284
+        "y": -0.3664
       }, {
         "x": 99,
-        "y": -0.4575358937753214
+        "y": -0.457535
       }],
       "key": "Example Data",
       "color": "#ff7f0e"
     }];
+      }
+    }
+    window.customElements.define(MotorTelemetryCard.is, MotorTelemetryCard);
+  </script>
+</dom-module>
+
+<dom-module id="detector-telemetry-card">
+  <template>
+    <style include="paper-material-styles">
+      :host {
+        display:flex;
+        padding:10px;
+        @apply --paper-material-elevation-2;
+      }
+      .left-pane {
+        width:150px;
+      }
+      canvas {
+        background:grey;
+      }
+    </style>
+    <div class="left-pane">
+      <h2>[[measurable.conf.name]]</h2>
+      <div>[[measurable.telemetry.status]]</div>
+    </div>
+    <canvas width="200" height="200"></canvas>
+  </template>
+  <script>
+    class DetectorTelemetryCard extends Polymer.Element {
+      static get is() { return 'detector-telemetry-card'; }
+      static get properties() {
+        return {
+
+        }
+      }
+    }
+    window.customElements.define(DetectorTelemetryCard.is, DetectorTelemetryCard);
+  </script>
+</dom-module>
+
+<dom-module id="telemetry-card">
+  <template>
+    <style include="paper-material-styles">
+      :host {
+        display:block;
+      }
+    </style>
+    <template is="dom-if" if="[[isMotor(measurable.conf)]]">
+      <motor-telemetry-card measurable="[[measurable]]"></motor-telemetry-card>
+    </template>
+    <template is="dom-if" if="[[isDetector(measurable.conf)]]">
+      <detector-telemetry-card measurable="[[measurable]]"></detector-telemetry-card>
+    </template>
+  </template>
+  <script>
+    class TelemetryCard extends Polymer.Element {
+      static get is() { return 'telemetry-card'; }
+      isDetector(conf) {
+        return conf.type == 'camera';
+      }
+      isMotor(conf) {
+        return conf.type == 'motor';
       }
     }
     window.customElements.define(TelemetryCard.is, TelemetryCard);

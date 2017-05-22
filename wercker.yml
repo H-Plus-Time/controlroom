@@ -12,15 +12,15 @@ build:
     - script:
         name: install dependencies
         code: |
-          HOME=$YARN_CACHE yarn && yarn global add bower gulp-cli
+          HOME=$YARN_CACHE yarn && yarn global add bower polymer-cli
     - script:
         name: bower install
         code: |
           bower install --allow-root --config.interactive=false
     - script:
-        name: gulp
+        name: actual build
         code: |
-          gulp
+          polymer build && cp ./data ./build/default/data
 deploy:
   steps:
     - install-packages:
@@ -28,7 +28,7 @@ deploy:
     - leipert/git-push:
         branch: gh-pages
         gh_oauth: $GITHUB_TOKEN
-        basedir: build/unbundled
+        basedir: build/default
     - script:
         name: lighthouse audit
         code: |

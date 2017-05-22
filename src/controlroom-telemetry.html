@@ -1,27 +1,30 @@
-<link rel="import" href="../bower_components/polymer/polymer.html">
+<link rel="import" href="../bower_components/polymer/polymer-element.html">
 <link rel="import" href="shared-styles.html">
-<link rel="import" href="telemetry-card.html">
+<link rel="import" href="telemetry-cards.html">
 <dom-module id="controlroom-telemetry">
   <template>
     <style include="shared-styles">
       :host {
         display: flex;
         flex-wrap:wrap;
-        max-width:66%;
+        /*max-width:66%;*/
         padding: 10px;
         margin:auto;
         justify-content:space-between;
       }
+      :host > * {
+        flex-basis: 30%;
+      }
     </style>
     <template is="dom-repeat" items="[[controllers]]">
-      <telemetry-card measurable="[[item]]">
-      </telemetry-card>
+      <telemetry-card measurable="[[item]]"></telemetry-card>
     </template>
   </template>
 
   <script>
-    Polymer({
-      is: 'controlroom-telemetry'
-    });
+    class ControlroomTelemetry extends Polymer.Element {
+      static get is() { return 'controlroom-telemetry'; }
+    }
+    window.customElements.define(ControlroomTelemetry.is, ControlroomTelemetry);
   </script>
 </dom-module>
