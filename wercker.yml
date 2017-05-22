@@ -20,7 +20,7 @@ build:
     - script:
         name: actual build
         code: |
-          polymer build && cp ./data ./build/default/data
+          polymer build && cp -r ./data ./build/default/data
 deploy:
   steps:
     - install-packages:
