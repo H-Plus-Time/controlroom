@@ -19,10 +19,6 @@
     "rules": ["polymer-2"]
   },
   "builds": [{
-    "service-worker": true,
-    "bundle": true,
-    "js": {"minify": true},
-    "css": {"minify": true},
-    "html": {"minify": true}
+    "preset": "es6-bundled"
   }]
 }
