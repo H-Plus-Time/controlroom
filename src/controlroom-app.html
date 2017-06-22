@@ -8,7 +8,7 @@ Code distributed by Google as part of the polymer project is also
 subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
 -->
 
-<link rel="import" href="../bower_components/polymer/polymer.html">
+<link rel="import" href="../bower_components/polymer/polymer-element.html">
 <link rel="import" href="../bower_components/app-layout/app-drawer/app-drawer.html">
 <link rel="import" href="../bower_components/app-layout/app-drawer-layout/app-drawer-layout.html">
 <link rel="import" href="../bower_components/app-layout/app-header/app-header.html">
@@ -23,7 +23,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel="import" href="../bower_components/iron-icons/iron-icons.html">
 <link rel="import" href="../bower_components/paper-tabs/paper-tabs.html">
 <link rel="import" href="../bower_components/paper-icon-button/paper-icon-button.html">
-
+<link rel="import" href="helper-imports.html" />
+<link rel="lazy-import" href="controlroom-telemetry.html" />
+<link rel="lazy-import" href="controlroom-control.html" />
+<link rel="lazy-import" href="controlroom-status.html" />
+<link rel="lazy-import" href="controlroom-vie404.html" />
 <dom-module id="controlroom-app">
   <template>
     <style>
@@ -155,125 +159,155 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   </template>
 
   <script>
-    Polymer({
-      is: 'controlroom-app',
-      behaviors: [
-      ],
-      properties: {
-        page: {
-          type: String,
-          reflectToAttribute: true,
-          observer: '_pageChanged'
-        },
-        menuItems: {
-          type: Array,
-          value: _ => (
-            [
-              {name: "control", label: "Control"},
-              {name: "telemetry", label: "Telemetry"}
-            ]
-          )
-        },
-        realm: {
+    class ControlroomApp extends Polymer.Element {
+      static get is() { return 'controlroom-app'; }
+      static get properties() {
+        return {
+          page: {
             type: String,
-            value: _ => "controlroom"
+            reflectToAttribute: true,
+            observer: '_pageChanged'
+          },
+          menuItems: {
+            type: Array,
+            value: _ => (
+              [
+                {name: "control", label: "Control"},
+                {name: "telemetry", label: "Telemetry"}
+              ]
+            )
+          },
+          realm: {
+              type: String,
+              value: _ => "controlroom"
+          },
+          routeData: Object,
+          subroute: String,
+          rootPattern: String
         }
-      },
+      }
 
-      observers: [
-        '_routePageChanged(routeData.page)'
-      ],
+      static get observers() {
+        return [
+          '_routePageChanged(routeData.page)'
+        ]
+      }
 
-      listeners: {
-        'autobahn-opened': 'initializeMeasurements',
-        'control-abort': '_dispatchAbort',
-        'control-disable': '_dispatchDisable',
-        'control-scan': '_dispatchScan',
-        'control-erase': '_dispatchErase',
-        'control-shutter-open': '_dispatchShutterOpen',
-        'control-shutter-close': 'dispatchShutterClose',
-        'control-move-absolute': '_dispatchMoveAbsolute',
-        'control-move-relative': '_dispatchMoveRelative',
-        'control-home': '_dispatchHome'
-      },
+      static get listeners() {
+        return {
+          'autobahn-opened': 'initializeMeasurements',
+          'control-abort': '_dispatchAbort',
+          'control-disable': '_dispatchDisable',
+          'control-scan': '_dispatchScan',
+          'control-erase': '_dispatchErase',
+          'control-shutter-open': '_dispatchShutterOpen',
+          'control-shutter-close': 'dispatchShutterClose',
+          'control-move-absolute': '_dispatchMoveAbsolute',
+          'control-move-relative': '_dispatchMoveRelative',
+          'control-home': '_dispatchHome'
+        }
+      }
 
-      _routePageChanged: function(page) {
+      constructor() {
+        super();
+        this.rootPattern = (new URL(this.rootPath)).pathname;
+      }
+
+      _routePageChanged(page) {
+        if(page == undefined) {
+          return
+        }
         this.page = page || 'control';
-      },
+      }
 
-      _pageChanged: function(page) {
+      _pageChanged(page) {
         // Load page import on demand. Show 404 page if fails
         var resolvedPageUrl = this.resolveUrl('controlroom-' + page + '.html');
-        this.importHref(resolvedPageUrl, null, this._showPage404, true);
-      },
+        Polymer.importHref(resolvedPageUrl, null, this._showPage404.bind(this), true);
+      }
 
       _showPage404() {
         this.page = 'view404';
-      },
+      }
 
       _dispatchAbort(e) {
         this.connection.session.call(`com.controlroom.${e.detail.conf.group}.abort`, [])
-      },
+      }
 
       _dispatchDisable(e) {
         console.log(e);
         this.connection.session.call(`com.controlroom.${e.detail.conf.group}.${e.detail.conf.id}.disable`, [])
-      },
+      }
 
       _dispatchErase(e) {
         console.log(e);
         this.connection.session.call(`com.controlroom.${e.detail.conf.group}.${e.detail.conf.id}.erase`, [])
-      },
+      }
 
       _dispatchScan(e) {
         console.log(e)
         this.connection.session.call(`com.controlroom.${e.detail.conf.group}.${e.detail.conf.id}.scan`, [e.detail.resolution])
-      },
+      }
 
       _dispatchShutterOpen(e) {
         this.connection.session.call(`com.controlroom.${e.detail.conf.group}.${e.detail.conf.id}.open`, [])
-      },
+      }
 
       _dispatchShutterClose(e) {
         this.connection.session.call(`com.controlroom.${e.detail.conf.group}.${e.detail.conf.id}.close`, [])
-      },
+      }
 
       _dispatchMoveAbsolute(e) {
         console.log(e)
         this.connection.session.call(`com.controlroom.${e.detail.conf.group}.${e.detail.conf.id}.absolute_move`, [e.detail.val])
-      },
+      }
 
       _dispatchMoveRelative(e) {
         this.connection.session.call(`com.controlroom.${e.detail.conf.group}.${e.detail.conf.id}.relative_move`, [e.detail.val])
-      },
+      }
 
       _dispatchHome(e) {
         this.connection.session.call(`com.controlroom.${e.detail.conf.group}.${e.detail.conf.id}.home`, [e.detail.val])
+      }
 
-      },
-
-      attached() {
-      },
+      ready() {
+        super.ready();
+        this.connection = new autobahn.Connection({
+          url: 'ws://localhost:8080/ws',
+          realm: this.realm
+        })
+        this.connection.onopen = function (session, details) {
+            console.log("Connected");
+            this.initializeMeasurements().then(console.log)
+        }
+        this.connection.open();
+      }
 
       handle_status(e) {
-        this.controllers.find((controller) => controller.id == e.id).status = e.status
-      },
+        e.forEach((eventController) => {
+          let matchController = this.controllers.find((controller) => controller.conf.id == eventController.id)
+          console.log(matchController);
+          matchController.telemetry = eventController.telemetry
+        })
+      }
 
       echo(e) {
         console.log(e)
-      },
+      }
 
-      initializeMeasurements: async function init() {
+      async initializeMeasurements() {
+        console.log(this.connection);
         let session = this.connection.session;
+        console.log(session);
         await session.subscribe('com.controlroom.measurements', this.echo);
-        await session.subscribe('com.controlroom.status', this.handle_status);
-        // let sessions = await session.call('wamp.session.list').then(resp => resp, console.log);
-        // if (session == null) {
-        //   return;
-        // }
+        await session.subscribe('com.controlroom.status', this.handle_status.bind(this));
+        let sessions = await session.call('wamp.session.list').then(resp => resp, console.log);
+        if (session == null) {
+          return;
+        }
         let subcontrollers = await session.call(`com.controlroom.describe`).then(resp => (resp));
         console.log(subcontrollers)
-        x = await Promise.all(subcontrollers.map(async (controller) => {
+        let x = await Promise.all(subcontrollers.map(async (controller) => {
             let controller_obj = await session.call(`com.controlroom.${controller}.describe`).then(resp => (resp));
             return controller_obj.controllers.map((controllable) => {
               controllable.group = controller;
@@ -281,7 +315,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             });
         }));
         console.log(x)
-        controllables = x.reduce((a,b) => {
+        let controllables = x.reduce((a,b) => {
           return a.concat(b)
         }).map((controllable) => {
           return {conf: controllable, telemetry: {}}
@@ -290,6 +324,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         this.controllers = controllables;
         console.log(this.controllers);
       }
-    });
+    }
+    window.customElements.define(ControlroomApp.is, ControlroomApp);
   </script>
 </dom-module>

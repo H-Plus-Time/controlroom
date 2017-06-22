@@ -218,7 +218,7 @@
             </div>
         </div>
     <div class="ribbon" style$="background: [[_computeTelemColor(telem.status)]]">
-        <h4>[[telem.value]] [[conf.units]]</h4>
+        <h4>[[telem.position]] [[conf.units]]</h4>
     </div>
     <div hidden="[[toggled]]" style="padding-bottom:10px;width:100%">
         <div class="horizontal layout justified">
@@ -272,7 +272,7 @@
                 telem: {
                     type: Number,
                     value: _ => ({
-                        value: 2,
+                        position: 2,
                         status: 'ready'
                     })
                 },
@@ -301,7 +301,7 @@
             _fireControllerSettings(e) {
                 this.dispatchEvent(new CustomEvent('open-controller-settings', {
                     detail: this.conf,
-                    bubbles: true
+                    bubbles: true, composed: true
                 }))
             },
 
@@ -332,7 +332,7 @@
                     detail: {
                         conf: this.conf
                     },
-                    bubbles: true
+                    bubbles: true, composed: true
                 }))
             },
 
@@ -341,7 +341,7 @@
                     detail: {
                         conf: this.conf
                     },
-                    bubbles: true
+                    bubbles: true, composed: true
                 }))
             },
             _dispatchAbort() {
@@ -349,7 +349,7 @@
                     detail: {
                         conf: this.conf
                     },
-                    bubbles: true
+                    bubbles: true, composed: true
                 }))
             },
             _dispatchRelativeMove(e) {
@@ -363,7 +363,7 @@
                         val: delta,
                         conf: this.conf
                     },
-                    bubbles: true
+                    bubbles: true, composed: true
                 }))
             },
             _dispatchAbsoluteMove() {
@@ -376,7 +376,7 @@
                             conf: this.conf,
                             val: this.abs_val
                         },
-                        bubbles: true
+                        bubbles: true, composed: true
                     }))
                 // }
             },
