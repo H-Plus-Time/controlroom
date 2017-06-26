@@ -27,6 +27,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel="lazy-import" href="controlroom-telemetry.html" />
 <link rel="lazy-import" href="controlroom-control.html" />
 <link rel="lazy-import" href="controlroom-status.html" />
+<link rel="lazy-import" href="controlroom-scan.html" />
 <link rel="lazy-import" href="controlroom-vie404.html" />
 <dom-module id="controlroom-app">
   <template>
@@ -152,6 +153,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             role="main">
           <controlroom-control name="control" controllers="[[controllers]]"></controlroom-control>
           <controlroom-telemetry name="telemetry" controllers="[[controllers]]"></controlroom-telemetry>
+          <controlroom-scan name="scan" controllers="[[controllers]]"></controlroom-scan>
           <controlroom-view404 name="view404"></controlroom-view404>
         </iron-pages>
       </app-header-layout>
@@ -173,7 +175,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             value: _ => (
               [
                 {name: "control", label: "Control"},
-                {name: "telemetry", label: "Telemetry"}
+                {name: "telemetry", label: "Telemetry"},
+                {name: 'scan', label: 'Scan'}
               ]
             )
           },

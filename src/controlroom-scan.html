@@ -1,0 +1,160 @@
+<link rel="import" href="../bower_components/polymer/polymer-element.html" />
+<link rel="import" href="../bower_components/paper-button/paper-button.html" />
+<link rel="import" href="scan-elements.html" />
+<link rel="import" href="../bower_components/paper-dropdown-menu/paper-dropdown-menu.html" />
+<link rel="import" href="../bower_components/paper-listbox/paper-listbox.html" />
+<link rel="import" href="../bower_components/paper-item/paper-item.html" />
+<link rel="import" href="../bower_components/paper-tooltip/paper-tooltip.html" />
+<link rel="import" href="../bower_components/iron-icon/iron-icon.html" />
+<link rel="import" href="../bower_components/iron-collapse/iron-collapse.html" />
+
+<dom-module id="controlroom-scan">
+  <template>
+    <style include="paper-material-styles">
+      :host {
+        display: block;
+        padding: 10px;
+        margin:auto;
+      }
+      .delete-overlay {
+        position:absolute;
+        top:0;
+        right:0;
+      }
+      .scan-card-container {
+        position:relative;
+        display:flex;
+        flex: 0 1 auto;
+      }
+      .scan-cards {
+        display:flex;
+        flex-direction:row;
+        flex-wrap:wrap;
+        align-items:center;
+      }
+      .add-scan {
+        @apply --paper-material-elevation-2;
+        padding:10px;
+      }
+    </style>
+    <template is="dom-repeat" items="[[scans]]">
+      <scan-progress data="[[item]]"></scan-progress>
+    </template>
+    <paper-button on-tap="revealAddScan" hidden$="[[showAddScan]]">Compose a scan</paper-button>
+    <iron-collapse class="add-scan" id="addScan" opened="[[showAddScan]]">
+      <h1 style="text-align:center;">Compose a scan</h1>
+      <h2>Scan Axes & Parameters</h2>
+      <div>
+        <div>
+          <paper-dropdown-menu>
+            <paper-listbox slot="dropdown-content" selected="1">
+              <template is="dom-repeat" items="[[unselectedAxes]]">
+                <paper-item>
+                  <div>
+                    [[item.name]]
+                  </div>
+                  <paper-icon-button data="[[item]]" icon="add" on-tap="copyToScanAxes"></paper-icon-button>
+                </paper-item>
+              </template>
+            </paper-listbox>
+          </paper-dropdown-menu>
+        </div>
+        <div>
+          <paper-button on-tap="clearAxes">Clear Axes</paper-button>
+          <!-- <paper-button on-tap="clearAxisOrder">Clear Axis Order</paper-button> -->
+        </div>
+      </div>
+      <div style="display:inline">
+        <div class="scan-cards">
+          <template is="dom-repeat" items="[[scanAxes]]">
+            <div class="scan-card-container">
+              <paper-icon-button class="delete-overlay"
+                icon="delete" idx="[[index]]" on-tap="deleteItem"></paper-icon-button>
+              <scan-card axis="[[item]]" order="[[index]]">
+                Name: [[item.name]], Start: [[item.start]], End: [[item.end]], Step: [[item.step]]
+              </scan-card>
+            </div>
+          </template>
+        </div>
+        <paper-tooltip position="top">Specify parameters for each scan axis</paper-tooltip>
+      </div>
+      <h2>Before All Action</h2>
+      <scan-action-card></scan-action-card>
+      <h2>After Move Action</h2>
+      <scan-action-card></scan-action-card>
+      <h2>After All Action</h2>
+      <scan-action-card></scan-action-card>
+    </iron-collapse>
+  </template>
+  <script>
+    class ControlroomScan extends Polymer.Element {
+      static get is() { return 'controlroom-scan'; }
+      static get properties() {
+        return {
+          scans: {
+            type: Array,
+            value: () => {
+              return [{
+                status: 'pending'
+              }]
+            }
+          },
+          unselectedAxes: {
+            type: Array,
+            computed: 'computeAllowedAxes(axes.*, scanAxes.*)'
+          },
+          axes: {
+            type: Array,
+            value: () => {
+              return [
+                {name: "X Axis", resolution: 0.01, scale: 'mm', min: 0, max: 25}
+              ]
+            }
+          },
+          scanAxes: {
+            type: Array,
+            value: () => {
+              return [
+                {name: "X Axis", resolution: 0.01, scale: 'mm', min: 0, max: 25, start: 0, end: 10, step: 1}
+              ]
+            }
+          }
+        }
+      }
+
+      computeAllowedAxes(axes, scanAxes) {
+        console.log(axes);
+        console.log(scanAxes);
+        return axes.base.filter((axis) => {
+          let x =  scanAxes.base.findIndex((scanAxis) => scanAxis.name == axis.name) == -1
+          console.log(x);
+          return x;
+        })
+      }
+      copyToScanAxes(e) {
+        const prevIdx = this.scanAxes.length;
+        e.target.data.order = prevIdx + 1;
+        this.push('scanAxes', e.target.data);
+      }
+      deleteItem(e) {
+        let index = e.target.idx;
+        this.splice('scanAxes', index, 1);
+      }
+      clearAxes() {
+        this.splice('scanAxes', 0, this.scanAxes.length);
+      }
+
+      revealAddScan() {
+        this.set('showAddScan', true);
+      }
+
+      ready() {
+        super.ready();
+        if(this.scans.length == 0) {
+          this.set('showAddScan', true);
+        }
+      }
+    }
+    window.customElements.define(ControlroomScan.is, ControlroomScan);
+  </script>
+</dom-module>

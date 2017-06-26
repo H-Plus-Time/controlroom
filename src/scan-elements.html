@@ -1,0 +1,230 @@
+<link rel="import" href="../bower_components/polymer/polymer-element.html" />
+<link rel="import" href="../bower_components/paper-button/paper-button.html" />
+<link rel="import" href="../bower_components/paper-progress/paper-progress.html" />
+<link rel="import" href="../bower_components/paper-input/paper-input.html" />
+<link rel="import" href="../bower_components/paper-styles/element-styles/paper-material-styles.html">
+<link rel="import" href="../bower_components/paper-dropdown-menu/paper-dropdown-menu.html" />
+<link rel="import" href="../bower_components/paper-listbox/paper-listbox.html" />
+<link rel="import" href="../bower_components/paper-item/paper-item.html" />
+
+<dom-module id="scan-card">
+  <template>
+    <style include="paper-material-styles">
+    :host {
+      display: block;
+      width:180px;
+      padding:10px;
+      @apply --paper-material-elevation-2;
+    }
+    div[inputs] {
+      display:flex;
+      flex-direction:row;
+      flex-wrap:wrap;
+    }
+    </style>
+    <h3>[[axis.name]] - [[humanOrder(order)]]</h3>
+    <div inputs>
+      <paper-input type="number" label="Start ([[axis.scale]])"
+        min="[[axis.start.min]]" max="[[axis.start.max]]"
+        step="[[axis.resolution]]" value="{{start}}">
+      </paper-input>
+      <paper-input type="number" label="End ([[axis.scale]])"
+        min="[[axis.end.min]]" max="[[axis.end.max]]"
+        step="[[axis.resolution]]" value="{{end}}">
+      </paper-input>
+      <paper-input type="number" label="Step size ([[axis.scale]])"
+        min="[[axis.step.min]]" max="[[axis.step.max]]"
+        step="[[axis.resolution]]" value="{{step}}">
+      </paper-input>
+      <div hidden$="[[invalid]]">
+        [[iterations]] steps
+      </div>
+    </div>
+  </template>
+  <script>
+    class ScanCard extends Polymer.Element {
+      static get is() { return 'scan-card'; }
+      static get properties() {
+        return {
+          axis: {
+            type: Object,
+            value: () => {}
+          },
+          step: Number,
+          order: Number,
+          iterations: {
+            type: Number,
+            notify: true,
+            computed: 'computeIterations(start, end, step)'
+          },
+          invalid: {
+            type: Boolean,
+            value: () => true,
+            computed: 'isInvalid(iterations)'
+          }
+        }
+      }
+      computeIterations(start, end, step) {
+        console.log(end);
+        if(!start || !end || !step || step == 0) {
+          return;
+        }
+        return Math.ceil(Math.abs(end - start) / step);
+      }
+      isInvalid(iterations) {
+        if(iterations) {
+          return false;
+        }
+        return true;
+      }
+
+      humanOrder(n) {
+        // endings
+        const s=["th","st","nd","rd"];
+        // discard 10^2 and above components
+        const v = n+1 % 100;
+        return n+1+(s[(v-20)%10]||s[v]||s[0]);
+      }
+    }
+    window.customElements.define(ScanCard.is, ScanCard);
+  </script>
+</dom-module>
+
+<dom-module id="scan-progress">
+  <template>
+    <style include="paper-material-styles">
+      :host {
+        @apply --paper-material-elevation-2;
+        display:block;
+        padding:10px;
+      }
+      paper-progress {
+        width:100%;
+      }
+      div[title] {
+        text-align:center;
+      }
+    </style>
+    <paper-progress indeterminate></paper-progress>
+    <div title>
+      [[current]] of [[iterations]]
+    </div>
+    <div style="display:flex;justify-content:space-between;">
+      <h3>[[data.status]]</h3>
+      <paper-button>Abort</paper-button>
+    </div>
+  </template>
+
+  <script>
+    class ScanProgress extends Polymer.Element {
+      static get is() { return 'scan-progress'; }
+      static get properties() {
+        return {
+          current: {
+            type: Number,
+            value: () => 0
+          },
+          iterations: {
+            type: Number,
+            value: () => 100
+          },
+          status: {
+            type: String,
+            value: () => 'pending'
+          }
+        }
+      }
+    }
+    window.customElements.define(ScanProgress.is, ScanProgress);
+  </script>
+</dom-module>
+
+<dom-module id="scan-action-card">
+  <template>
+    <style include="paper-material-styles">
+      [hidden] {
+        display:none !important;
+      }
+      .parameters {
+        display:flex;
+        flex-direction:row;
+        flex-wrap:wrap;
+        width:180px;
+        padding:10px;
+        @apply --paper-material-elevation-2;
+      }
+    </style>
+    <paper-dropdown-menu on-selected-item-label-changed="echo">
+      <paper-listbox slot="dropdown-content" selected="{{selected}}">
+        <template is="dom-repeat" items="[[callables]]">
+          <paper-item>
+            [[item.name]]
+          </paper-item>
+        </template>
+      </paper-listbox>
+    </paper-dropdown-menu>
+    <div hidden$="[[invalid]]" class="parameters">
+      <h3>[[selectedCallable.name]]</h3>
+      <template is="dom-repeat" items="[[selectedCallable.parameters]]">
+        <paper-input name="[[item.name]]" label="[[item.label]]" type="[[item.type]]"></paper-input>
+      </template>
+    </div>
+  </template>
+  <script>
+    /* Lifecycle
+     * 1. Select a callable
+     * 2. punt selection up to parent
+     * 3. parent fetches JSON call schema (e.g. named this, takes these parameters, is of type this)
+     * 4. parent sets this element's callable property to the return value of 3.
+     * 5. fill out the form - validation is based on bounds and requireds.
+     * 6. at a later point, data is collected from a scraper method on this class.
+     */
+    class ScanActionCard extends Polymer.Element {
+      static get is() { return 'scan-action-card'; }
+      static get properties() {
+        return {
+          callables: {
+            type: Array,
+            value: () => {
+              return [
+                {name: 'hello'},
+                {name: 'mar345'}
+              ]
+            }
+          },
+          selected: String,
+          invalid: {
+            type: Boolean,
+            value: () => true,
+            computed: 'computeInvalid(selected)'
+          },
+          selectedCallable: {
+            type: Object,
+            value: () => {
+              return {
+                name: 'mar345 detector',
+                parameters: [
+                  {label: 'Exposure (s)', type: 'number', name: 'exposure'},
+                  {label: 'Resolution (px)', type: 'number', name: 'resolution'}
+                ]
+              }
+            }
+          }
+        }
+      }
+
+      async echo(e) {
+        console.log(e);
+      }
+
+      computeInvalid(selected) {
+        if(!selected) {
+          return true;
+        }
+        console.log(selected);
+        return false;
+      }
+    }
+    window.customElements.define(ScanActionCard.is, ScanActionCard);
+  </script>
+</dom-module>

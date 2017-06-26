@@ -7,13 +7,9 @@
       :host {
         display: flex;
         flex-wrap:wrap;
-        /*max-width:66%;*/
         padding: 10px;
         margin:auto;
-        justify-content:space-between;
-      }
-      :host > * {
-        flex-basis: 30%;
+        justify-content:center;
       }
     </style>
     <template is="dom-repeat" items="[[controllers]]">
@@ -24,6 +20,11 @@
   <script>
     class ControlroomTelemetry extends Polymer.Element {
       static get is() { return 'controlroom-telemetry'; }
+      static get properties() {
+        return {
+          controllers: Array
+        }
+      }
     }
     window.customElements.define(ControlroomTelemetry.is, ControlroomTelemetry);
   </script>

@@ -26,7 +26,14 @@
     "paper-button": "1 - 2",
     "webcomponentsjs": "webcomponents/webcomponentsjs#^1.0.0-rc.4",
     "nvd3-elements": "^0.21.0",
-    "autobahn": "^17.5.2"
+    "autobahn": "^17.5.2",
+    "paper-dropdown-menu": "^2.0.0",
+    "paper-listbox": "^2.0.0",
+    "paper-item": "^2.0.0",
+    "paper-progress": "^2.0.1",
+    "paper-tooltip": "^2.0.0",
+    "interactjs": "^1.2.8",
+    "iron-collapse": "^2.0.0"
   },
   "devDependencies": {
     "web-component-tester": "6.0.0-prerelease.5"

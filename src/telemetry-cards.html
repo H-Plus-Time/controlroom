@@ -6,14 +6,12 @@
     <style include="paper-material-styles">
       :host {
         display: flex;
+        width:350px;
         padding:10px;
-        @apply --paper-material-elevation-2;
-      }
-      .left-pane {
-        width:150px;
+        justify-content:space-between;
       }
     </style>
-    <div class="left-pane">
+    <div>
       <h2>[[measurable.conf.name]]</h2>
       <div>[[measurable.telemetry.status]]</div>
       <div>
@@ -34,14 +32,15 @@
       show-legend
       use-interactive-guideline>
     </nvd3-line>
-    
-    
+
   </template>
   <script>
     class MotorTelemetryCard extends Polymer.Element {
       static get is() { return 'motor-telemetry-card'; }
       static get properties() {
         return {
+          measurable: Object,
+          data: Object
         }
       }
       ready() {
@@ -363,7 +362,6 @@
       :host {
         display:flex;
         padding:10px;
-        @apply --paper-material-elevation-2;
       }
       .left-pane {
         width:150px;
@@ -383,7 +381,7 @@
       static get is() { return 'detector-telemetry-card'; }
       static get properties() {
         return {
-
+          measurable: Object
         }
       }
     }
@@ -396,6 +394,7 @@
     <style include="paper-material-styles">
       :host {
         display:block;
+        @apply --paper-material-elevation-2;
       }
     </style>
     <template is="dom-if" if="[[isMotor(measurable.conf)]]">
@@ -408,6 +407,11 @@
   <script>
     class TelemetryCard extends Polymer.Element {
       static get is() { return 'telemetry-card'; }
+      static get properties() {
+        return {
+          measurable: Object
+        }
+      }
       isDetector(conf) {
         return conf.type == 'camera';
       }
