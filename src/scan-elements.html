@@ -12,29 +12,37 @@
     <style include="paper-material-styles">
     :host {
       display: block;
-      width:180px;
+      width:260px;
+      height:260px;
       padding:10px;
       @apply --paper-material-elevation-2;
     }
+    h3 {
+      margin:0;
+    }
     div[inputs] {
       display:flex;
-      flex-direction:row;
+      flex-direction:column;
       flex-wrap:wrap;
+      justify-content: center;
     }
     </style>
-    <h3>[[axis.name]] - [[humanOrder(order)]]</h3>
+    <h3 style="text-align:center">[[controller.conf.name]] - [[humanOrder(order)]]</h3>
     <div inputs>
-      <paper-input type="number" label="Start ([[axis.scale]])"
-        min="[[axis.start.min]]" max="[[axis.start.max]]"
-        step="[[axis.resolution]]" value="{{start}}">
+      <paper-input type="number" label="Start ([[controller.conf.units]])"
+        min="[[controller.conf.min]]" max="[[controller.conf.max]]"
+        pattern="\d+\.?\d*"
+        step="[[controller.conf.resolution]]" value="{{controller.start::input}}">
       </paper-input>
-      <paper-input type="number" label="End ([[axis.scale]])"
-        min="[[axis.end.min]]" max="[[axis.end.max]]"
-        step="[[axis.resolution]]" value="{{end}}">
+      <paper-input type="number" label="End ([[controller.conf.units]])"
+        min="[[controller.conf.min]]" max="[[controller.conf.max]]"
+        pattern="\d+\.?\d*"
+        step="[[controller.conf.resolution]]" value="{{controller.end::input}}">
       </paper-input>
-      <paper-input type="number" label="Step size ([[axis.scale]])"
-        min="[[axis.step.min]]" max="[[axis.step.max]]"
-        step="[[axis.resolution]]" value="{{step}}">
+      <paper-input type="number" label="Step size ([[controller.conf.units]])"
+        min="[[controller.conf.min]]" max="[[controller.conf.max]]"
+        pattern="\d+\.?\d*"
+        step="[[controller.conf.resolution]]" value="{{controller.step::input}}">
       </paper-input>
       <div hidden$="[[invalid]]">
         [[iterations]] steps
@@ -46,26 +54,25 @@
       static get is() { return 'scan-card'; }
       static get properties() {
         return {
-          axis: {
+          controller: {
             type: Object,
             value: () => {}
           },
-          step: Number,
           order: Number,
           iterations: {
             type: Number,
             notify: true,
-            computed: 'computeIterations(start, end, step)'
+            computed: 'computeIterations(controller.start, controller.end, controller.step)',
           },
           invalid: {
             type: Boolean,
             value: () => true,
-            computed: 'isInvalid(iterations)'
+            computed: 'isInvalid(iterations)',
+            observer: 'notifyValid'
           }
         }
       }
       computeIterations(start, end, step) {
-        console.log(end);
         if(!start || !end || !step || step == 0) {
           return;
         }
@@ -76,6 +83,13 @@
           return false;
         }
         return true;
+      }
+      notifyValid(invalid, oldInvalid) {
+        this.dispatchEvent(new CustomEvent('validity-changed', {
+          bubbles: true,
+          composed: true,
+          detail: {}
+        }))
       }
 
       humanOrder(n) {
@@ -105,13 +119,13 @@
         text-align:center;
       }
     </style>
-    <paper-progress indeterminate></paper-progress>
+    <paper-progress value="[[transformProgress(data.current_iterations, data.iterations)]]"></paper-progress>
     <div title>
-      [[current]] of [[iterations]]
+      [[data.current_iterations]] of [[data.iterations]]
     </div>
     <div style="display:flex;justify-content:space-between;">
       <h3>[[data.status]]</h3>
-      <paper-button>Abort</paper-button>
+      <paper-button on-tap="abortScan">Abort</paper-button>
     </div>
   </template>
 
@@ -120,19 +134,21 @@
       static get is() { return 'scan-progress'; }
       static get properties() {
         return {
-          current: {
-            type: Number,
-            value: () => 0
-          },
-          iterations: {
-            type: Number,
-            value: () => 100
-          },
           status: {
             type: String,
             value: () => 'pending'
           }
         }
+      }
+      transformProgress(current, total) {
+        return current/ total*100;
+      }
+      abortScan(e) {
+        this.dispatchEvent(new CustomEvent('control-abort-execute-scan', {
+          detail: this.data.tag,
+          bubbles: true,
+          composed: true
+        }))
       }
     }
     window.customElements.define(ScanProgress.is, ScanProgress);
@@ -142,8 +158,19 @@
 <dom-module id="scan-action-card">
   <template>
     <style include="paper-material-styles">
+      :host {
+        display: block;
+        width:260px;
+        height:260px;
+        padding:10px;
+        @apply --paper-material-elevation-2;
+      }
       [hidden] {
         display:none !important;
+      }
+      h3 {
+        margin:0;
+        text-align:center;
       }
       .parameters {
         display:flex;
@@ -154,17 +181,9 @@
         @apply --paper-material-elevation-2;
       }
     </style>
-    <paper-dropdown-menu on-selected-item-label-changed="echo">
-      <paper-listbox slot="dropdown-content" selected="{{selected}}">
-        <template is="dom-repeat" items="[[callables]]">
-          <paper-item>
-            [[item.name]]
-          </paper-item>
-        </template>
-      </paper-listbox>
-    </paper-dropdown-menu>
+    <h3>[[controller.conf.name]]</h3>
     <div hidden$="[[invalid]]" class="parameters">
-      <h3>[[selectedCallable.name]]</h3>
+      <h3>[[controller.name]]</h3>
       <template is="dom-repeat" items="[[selectedCallable.parameters]]">
         <paper-input name="[[item.name]]" label="[[item.label]]" type="[[item.type]]"></paper-input>
       </template>
@@ -192,6 +211,7 @@
               ]
             }
           },
+          title: String,
           selected: String,
           invalid: {
             type: Boolean,

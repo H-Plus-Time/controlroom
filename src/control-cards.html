@@ -1,4 +1,4 @@
-<link rel="import" href="../bower_components/polymer/polymer.html">
+<link rel="import" href="../bower_components/polymer/polymer-element.html">
 <link rel="import" href="../bower_components/paper-input/paper-input.html">
 <link rel="import" href="../bower_components/paper-styles/shadow.html">
 <link rel="import" href="../bower_components/paper-icon-button/paper-icon-button.html">
@@ -61,13 +61,13 @@
             </div>
         </div>
         <div class="ribbon" style$="background: [[_computeTelemColor(telemetry.status)]]">
-            <h4>[[telemetry.value]]</h4>
+            <h4>[[telemetry.status]]</h4>
         </div>
         <div style="padding-bottom:10px">
-            <div class="horizontal layout end">
-                <paper-button on-tap="_dispatchErase" disabled$="[[disabled]]">Erase</paper-button>
-                <paper-button on-tap="_dispatchAbort" disabled$="[[disabled]]">Abort</paper-button>
-                <paper-button on-tap="_dispatchScan" disabled$="[[disabled]]">Scan</paper-button>
+            <div class="horizontal layout end wrap">
+                <template is="dom-repeat" items="[[conf.commands]]">
+                    <paper-button on-tap="_dispatchCommand" disabled$="[[disabled]]">[[item.base]]</paper-button>
+                </template>
             </div>
         </div>
     </template>
@@ -83,10 +83,20 @@
             _computeTelemColor(status) {
                 switch (status) {
                     case 'moving':
-                        return "#green";
+                        return "green";
+                    case 'idle':
+                        return '#fff';
                     default:
                         return "#fff";
                 }
+            },
+            _dispatchCommand(e) {
+                console.log(e.model);
+                this.dispatchEvent(new CustomEvent(`control-${e.model.item.base}`, {
+                    detail: {conf: this.conf, resolution: 2},
+                    bubbles: true,
+                    composed: true
+                }))
             },
 
             _fireControllerSettings(e) {
@@ -211,14 +221,14 @@
             <div class="horizontal layout justified">
                 <h4 class="nomargin">[[mode]]</h4>
                 <div class="horizontal layout center">
-                    <h4 class="nomargin">[[telem.status]]</h4>
-                    <iron-icon style="padding:0 5px" class$="[[telem.status]]"
-                    icon="[[_computeStatusIcon(telem.status)]]"></iron-icon>
+                    <h4 class="nomargin">[[telemetry.status]]</h4>
+                    <iron-icon style="padding:0 5px" class$="[[telemetry.status]]"
+                    icon="[[_computeStatusIcon(telemetry.status)]]"></iron-icon>
                 </div>
             </div>
         </div>
-    <div class="ribbon" style$="background: [[_computeTelemColor(telem.status)]]">
-        <h4>[[telem.position]] [[conf.units]]</h4>
+    <div class="ribbon" style$="background: [[_computeTelemColor(telemetry.status)]]">
+        <h4>[[telemetry.position]] [[conf.units]]</h4>
     </div>
     <div hidden="[[toggled]]" style="padding-bottom:10px;width:100%">
         <div class="horizontal layout justified">
@@ -249,45 +259,58 @@
 
     </template>
     <script>
-        Polymer({
-            is: 'motor-card',
-            properties: {
-                inProgress: {
-                    type: Boolean,
-                    value: _ => false
-                },
-                mode: {
-                    type: String,
-                    computed: '_computeMode(toggled)',
-                    value: _ => "absolute"
-                },
-                toggled: {
-                    type: Boolean,
-                    value: _ => false
-                },
-                conf: {
-                    type: Object,
-                    value: _ => ({})
-                },
-                telem: {
-                    type: Number,
-                    value: _ => ({
-                        position: 2,
-                        status: 'ready'
-                    })
-                },
+        class MotorCard extends Polymer.Element {
+            static get is() { return 'motor-card'}
+            static get properties() { return {
+                    inProgress: {
+                        type: Boolean,
+                        value: _ => false
+                    },
+                    mode: {
+                        type: String,
+                        computed: '_computeMode(toggled)',
+                        value: _ => "absolute"
+                    },
+                    toggled: {
+                        type: Boolean,
+                        value: _ => false
+                    },
+                    conf: {
+                        type: Object,
+                        value: _ => ({})
+                    },
+                    telemetry: {
+                        type: Number,
+                        value: _ => ({
+                            position: 2,
+                            status: 'ready'
+                        })
+                    },
 
-                disabled: {
-                    type: Boolean,
-                    value: _ => false
-                },
+                    disabled: {
+                        type: Boolean,
+                        value: _ => false
+                    },
 
-                pinned: {
-                    type: Array,
-                    value: _ => {}
+                    pinned: {
+                        type: Array,
+                        value: _ => {}
+                    }
+
                 }
+            }
 
-            },
+            static get observers() {
+                return [
+                    'observeStatus(telemetry.status)'
+                ]
+            }
+
+            observeStatus(status) {
+                if (status === 'aborted' || status === 'disabled') {
+                    this.set('disabled', true);
+                }
+            }
 
             _computeTelemColor(status) {
                 switch (status) {
@@ -296,18 +319,18 @@
                     default:
                         return "#fff";
                 }
-            },
+            }
 
             _fireControllerSettings(e) {
                 this.dispatchEvent(new CustomEvent('open-controller-settings', {
                     detail: this.conf,
                     bubbles: true, composed: true
                 }))
-            },
+            }
 
             _computeMode(toggled) {
                 return toggled ? "RELATIVE" : "ABSOLUTE";
-            },
+            }
 
             _computeDisableIcon(disabled) {
                 if (disabled) {
@@ -315,7 +338,7 @@
                 } else {
                     return 'lock-open'
                 }
-            },
+            }
             _computeStatusIcon(status) {
                 switch (status) {
                     case 'ready':
@@ -325,7 +348,7 @@
                     default:
                         return 'done';
                 }
-            },
+            }
 
             _dispatchDisable() {
                 this.dispatchEvent(new CustomEvent('control-disable', {
@@ -334,7 +357,7 @@
                     },
                     bubbles: true, composed: true
                 }))
-            },
+            }
 
             _dispatchHome() {
                 this.dispatchEvent(new CustomEvent('control-home', {
@@ -343,7 +366,7 @@
                     },
                     bubbles: true, composed: true
                 }))
-            },
+            }
             _dispatchAbort() {
                 this.dispatchEvent(new CustomEvent('control-abort', {
                     detail: {
@@ -351,27 +374,27 @@
                     },
                     bubbles: true, composed: true
                 }))
-            },
+            }
             _dispatchRelativeMove(e) {
                 if (this.inProgess) {
                     return;
                 }
-                dir = e.target.getAttribute('dir') == "forward" ? 1 : -1;
-                delta = this.rel_val * dir;
-                this.dispatchEvent(new CustomEvent('control-move-relative', {
+                let dir = e.target.getAttribute('dir') == "forward" ? 1 : -1;
+                let delta = this.rel_val * dir;
+                this.dispatchEvent(new CustomEvent('control-relative-move', {
                     detail: {
                         val: delta,
                         conf: this.conf
                     },
                     bubbles: true, composed: true
                 }))
-            },
+            }
             _dispatchAbsoluteMove() {
                 if (this.inProgress) {
                     return;
                 }
                 // if (this.mode == "absolute") {
-                    this.dispatchEvent(new CustomEvent('control-move-absolute', {
+                    this.dispatchEvent(new CustomEvent('control-absolute-move', {
                         detail: {
                             conf: this.conf,
                             val: this.abs_val
@@ -379,10 +402,11 @@
                         bubbles: true, composed: true
                     }))
                 // }
-            },
+            }
             _computeIcon(inProgress) {
                 return inProgress ? "close" : "send"
             }
-        });
+        };
+        customElements.define(MotorCard.is, MotorCard);
     </script>
 </dom-module>

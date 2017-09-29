@@ -33,7 +33,8 @@
     "paper-progress": "^2.0.1",
     "paper-tooltip": "^2.0.0",
     "interactjs": "^1.2.8",
-    "iron-collapse": "^2.0.0"
+    "iron-collapse": "^2.0.0",
+    "uuid-js": "^0.7.5"
   },
   "devDependencies": {
     "web-component-tester": "6.0.0-prerelease.5"

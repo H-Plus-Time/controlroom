@@ -1,18 +1,23 @@
 <link rel="import" href="../bower_components/polymer/polymer-element.html" />
 <link rel="import" href="../bower_components/paper-button/paper-button.html" />
+<link rel="import" href="../bower_components/paper-icon-button/paper-icon-button.html" />
 <link rel="import" href="scan-elements.html" />
 <link rel="import" href="../bower_components/paper-dropdown-menu/paper-dropdown-menu.html" />
 <link rel="import" href="../bower_components/paper-listbox/paper-listbox.html" />
 <link rel="import" href="../bower_components/paper-item/paper-item.html" />
 <link rel="import" href="../bower_components/paper-tooltip/paper-tooltip.html" />
 <link rel="import" href="../bower_components/iron-icon/iron-icon.html" />
+<link rel="import" href="../bower_components/iron-flex-layout/iron-flex-layout-classes.html">
 <link rel="import" href="../bower_components/iron-collapse/iron-collapse.html" />
+<link rel="import" href="../bower_components/paper-styles/element-styles/paper-material-styles.html">
+<link rel="import" href="../bower_components/paper-styles/typography.html">
 
 <dom-module id="controlroom-scan">
   <template>
-    <style include="paper-material-styles">
+    <style include="iron-flex iron-flex-alignment paper-material-styles">
       :host {
-        display: block;
+        display: flex;
+        flex-direction:column;
         padding: 10px;
         margin:auto;
       }
@@ -36,54 +41,99 @@
         @apply --paper-material-elevation-2;
         padding:10px;
       }
+      iron-collapse {
+        position:relative;
+      }
+      [icon="cancel"] {
+        color: #D50000;
+      }
+      [icon="check-circle"] {
+        color: #00AA8D;
+      }
+      [hidden] {
+        display:none !important;
+      }
+      .raised {
+        @apply --paper-font-button;
+      }
+      .raised:hover {
+        @apply --paper-material-elevation-1;
+      }
     </style>
+    <paper-button on-tap="revealAddScan" hidden$="[[showAddScan]]">Compose a scan</paper-button>
     <template is="dom-repeat" items="[[scans]]">
       <scan-progress data="[[item]]"></scan-progress>
     </template>
-    <paper-button on-tap="revealAddScan" hidden$="[[showAddScan]]">Compose a scan</paper-button>
     <iron-collapse class="add-scan" id="addScan" opened="[[showAddScan]]">
-      <h1 style="text-align:center;">Compose a scan</h1>
-      <h2>Scan Axes & Parameters</h2>
-      <div>
-        <div>
-          <paper-dropdown-menu>
+      <div class="horizontal layout center-justified center">
+        <h1 style="text-align:center;">Compose a scan</h1>
+        <paper-button class="raised" on-tap="collapse"><iron-icon icon="cancel"></iron-icon>Cancel</paper-button>
+        <paper-button class="raised" on-tap="execute" disabled$="[[incomplete]]">
+          <iron-icon icon="check-circle"></iron-icon>
+          Execute
+        </paper-button>
+      </div>
+      <div class="horizontal layout flex">
+        <div class="vertical layout center" style="flex:50%">
+          <h2>After Move</h2>
+          <div class="horizontal layout center wrap">
+            <!-- in future, you should be able to fire a notification (e.g. an email),
+            for the moment, leave it commented out -->
+            <!-- <scan-action-card title="Before Scan" callables="[[isCallable(controllers)]]"></scan-action-card> -->
+            <!-- do a sequence of things - trigger x, then acquire with y -->
+            <div class="vertical layout center wrap">
+              <!-- in future, you should be able to fire a notification here.
+              For the moment, just allow 'Move back to beginning' and 'Home' -->
+              <!-- <scan-action-card title="After Scan" callables="[[afterScanProcedures]]"></scan-action-card> -->
+              <paper-dropdown-menu style="width:300px" hidden$="[[allCallablesSelected]]">
+                <paper-listbox slot="dropdown-content" selected="1">
+                  <template is="dom-repeat" items="[[unselectedCallables]]">
+                    <paper-item>
+                      <div>
+                        [[item.conf.name]]
+                      </div>
+                      <paper-icon-button data="[[item]]" icon="add" on-tap="copyToSelectedCallables"></paper-icon-button>
+                    </paper-item>
+                  </template>
+                </paper-listbox>
+              </paper-dropdown-menu>
+              <div class="horizontal layout wrap">
+                <template is="dom-repeat" items="[[selectedCallables]]">
+                  <div class="scan-card-container">
+                    <paper-icon-button class="delete-overlay" icon="delete" idx="[[index]]" on-tap="unselectCallable"></paper-icon-button>
+                    <scan-action-card controller="[[item]]" order="[[index]]"></scan-action-card>
+                  </div>
+                </template>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="vertical layout center" style="flex: 50%">
+          <h2>Axes</h2>
+          <paper-dropdown-menu style="width:300px" hidden$="[[allAxesSelected]]">
             <paper-listbox slot="dropdown-content" selected="1">
               <template is="dom-repeat" items="[[unselectedAxes]]">
                 <paper-item>
                   <div>
-                    [[item.name]]
+                    [[item.conf.name]]
                   </div>
                   <paper-icon-button data="[[item]]" icon="add" on-tap="copyToScanAxes"></paper-icon-button>
                 </paper-item>
               </template>
             </paper-listbox>
           </paper-dropdown-menu>
-        </div>
-        <div>
-          <paper-button on-tap="clearAxes">Clear Axes</paper-button>
-          <!-- <paper-button on-tap="clearAxisOrder">Clear Axis Order</paper-button> -->
+          <div class="horizontal layout wrap">
+            <template is="dom-repeat" items="[[scanAxes]]">
+              <div class="scan-card-container">
+                <paper-icon-button class="delete-overlay" icon="delete" idx="[[index]]" on-tap="deleteItem"></paper-icon-button>
+                <scan-card controller="[[item]]" order="[[index]]" on-validity-changed="axesChanged">
+                  Name: [[item.name]], Start: [[item.start]], End: [[item.end]], Step: [[item.step]]
+                </scan-card>
+              </div>
+            </template>
+          </div>
         </div>
       </div>
-      <div style="display:inline">
-        <div class="scan-cards">
-          <template is="dom-repeat" items="[[scanAxes]]">
-            <div class="scan-card-container">
-              <paper-icon-button class="delete-overlay"
-                icon="delete" idx="[[index]]" on-tap="deleteItem"></paper-icon-button>
-              <scan-card axis="[[item]]" order="[[index]]">
-                Name: [[item.name]], Start: [[item.start]], End: [[item.end]], Step: [[item.step]]
-              </scan-card>
-            </div>
-          </template>
-        </div>
-        <paper-tooltip position="top">Specify parameters for each scan axis</paper-tooltip>
-      </div>
-      <h2>Before All Action</h2>
-      <scan-action-card></scan-action-card>
-      <h2>After Move Action</h2>
-      <scan-action-card></scan-action-card>
-      <h2>After All Action</h2>
-      <scan-action-card></scan-action-card>
     </iron-collapse>
   </template>
   <script>
@@ -94,42 +144,103 @@
           scans: {
             type: Array,
             value: () => {
-              return [{
-                status: 'pending'
-              }]
-            }
+              return []
+            },
+            observer: 'observeScans'
           },
           unselectedAxes: {
             type: Array,
-            computed: 'computeAllowedAxes(axes.*, scanAxes.*)'
+            computed: 'computeAllowedAxes(controllers.*, scanAxes.*)'
           },
-          axes: {
+          callables: {
+            type: Array,
+            computed: 'isCallable(controllers)'
+          },
+          unselectedCallables: {
+            type: Array,
+            computed: 'computeAllowedCallables(callables)'
+          },
+          selectedCallables: {
+            type: Array,
+            value: () => {
+              return []
+            }
+          },
+          allCallablesSelected: {
+            type: Boolean,
+            computed: 'zeroLength(unselectedCallables.length)'
+          },
+          allAxesSelected: {
+            computed: 'zeroLength(unselectedAxes.length)'
+          },
+          controllers: {
+            type: Array,
+            value: () => {
+              return []
+            }
+          },
+          afterScanProcedures: {
             type: Array,
             value: () => {
               return [
-                {name: "X Axis", resolution: 0.01, scale: 'mm', min: 0, max: 25}
+                {"name": "Return to Start", "id": "return_to_start"}
               ]
             }
           },
           scanAxes: {
             type: Array,
             value: () => {
-              return [
-                {name: "X Axis", resolution: 0.01, scale: 'mm', min: 0, max: 25, start: 0, end: 10, step: 1}
-              ]
+              return []
             }
+          },
+          incomplete: {
+            type: Boolean,
+            value: () => true
           }
         }
       }
-
+      static get observers() {
+        return [
+          'observeScans(scans.splices)'
+        ]
+      }
+      computeAllowedCallables(callables) {
+        return callables
+      }
+      axesChanged(e) {
+        this.set('incomplete', this.scanAxes.map(ax => !ax.step || !ax.start || !ax.end)
+                                  .reduce((a, b) => a || b, false))
+      }
+      observeScans(splices) {
+        if(!splices || splices instanceof Array) {
+          return;
+        }
+        console.log(splices['indexSplices'])
+        if (splices['indexSplices'][0]['object'].length == 0 && splices['indexSplices'][0]['removed'].length == 1) {
+          // final scan aborted or completed, open the collapsible
+          this.revealAddScan();
+        }
+      }
+      zeroLength(len) {
+        return len == 0
+      }
+      
       computeAllowedAxes(axes, scanAxes) {
-        console.log(axes);
-        console.log(scanAxes);
         return axes.base.filter((axis) => {
-          let x =  scanAxes.base.findIndex((scanAxis) => scanAxis.name == axis.name) == -1
-          console.log(x);
-          return x;
+          let x = scanAxes.base.findIndex((scanAxis) => scanAxis.conf.name == axis.conf.name) == -1
+          return x && axis.conf.type == "motor"
         })
+      }
+      // before scan, the user should be able to instruct the 
+      isCallable(controllers) {
+        return controllers.filter((controller) => {
+          return ["detector", "trigger", "camera"].indexOf(controller.conf.type) != -1
+        })
+      }
+      copyToSelectedCallables(e) {
+        const prevIdx = this.selectedCallables.length;
+        e.target.data.order = prevIdx + 1;
+        this.push('selectedCallables', e.target.data);
       }
       copyToScanAxes(e) {
         const prevIdx = this.scanAxes.length;
@@ -143,9 +254,41 @@
       clearAxes() {
         this.splice('scanAxes', 0, this.scanAxes.length);
       }
+      clearActions() {
+        this.set('actions', {});
+      }
 
       revealAddScan() {
         this.set('showAddScan', true);
+      }
+      collapse() {
+        this.clearAxes();
+        this.clearActions();
+        this.set('showAddScan', false);
+      }
+      execute() {
+        // package up command, fire up to app
+        let detail = {
+          "tag": `${new Date()/1000}-${UUIDjs.create().hex}`,
+          "command_expression": {
+            "type": "scan",
+            "main": {
+              "pattern": "raster",
+              "dimensions": this.scanAxes.map(controller => {
+                return {
+                  id: `${controller.conf.group}.${controller.conf.id}`,
+                  start: parseFloat(controller.start),
+                  end: parseFloat(controller.end),
+                  step: parseFloat(controller.step)
+                }
+              })
+            }
+          }
+        }
+        this.dispatchEvent(new CustomEvent('control-execute-scan', {
+          detail: detail, bubbles: true, composed: true
+        }))
+        this.collapse();
       }
 
       ready() {
